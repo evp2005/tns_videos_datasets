@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+env/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+
+# Media and static files
+/media
+/staticfiles
+/static
+
+# VS Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python egg info
+*.egg-info/
+dist/
+build/
+
+# Local settings
+local_settings.py
+
+# Pipenv
+Pipfile.lock
