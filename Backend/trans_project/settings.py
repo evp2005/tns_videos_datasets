@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +49,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+# Condiguración de CORS
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'trans_project.urls'
 
@@ -74,9 +80,13 @@ WSGI_APPLICATION = 'trans_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tcp_videos',
+        'USER': 'root',
+        'PASSWORD': '123456789IO',
+        'HOST': 'localhost',
+        'PORT':'3306',
+        }
 }
 
 
