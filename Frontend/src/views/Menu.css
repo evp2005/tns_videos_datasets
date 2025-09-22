@@ -1,0 +1,67 @@
+.menu-page {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    font-family: 'Concert One', sans-serif;
+
+}
+
+.perfil {
+    background-color: rgb(2, 47, 99);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image {
+    width: 200px;
+    height: 200px;
+    border: 1px solid black;
+    border-radius: 100px
+}
+
+
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr
+}
+
+.name {
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.title {
+    color: #425E76;
+    font-size: 70px
+}
+
+.button {
+    width: 150px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    background-color: #425E76;
+    color: wheat;
+}
+
+.archivos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+}
+
+.archivos h2 {
+    font-size: 30px;
+}
+
+.buttons {
+    display: flex;
+    gap: 20px
+}
+
+;
