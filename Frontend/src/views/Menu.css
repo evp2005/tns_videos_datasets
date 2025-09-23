@@ -1,67 +1,167 @@
+/* Importar fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Lora&display=swap');
+
+/* Contenedor principal */
 .menu-page {
     height: 100vh;
     display: grid;
     grid-template-columns: 1fr 3fr;
-    font-family: 'Concert One', sans-serif;
-
+    font-family: 'Lora', serif;
+    background-color: #f4f6f8;
+    /* fondo claro para la sección principal */
 }
 
+/* Lateral perfil */
 .perfil {
     background-color: rgb(2, 47, 99);
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 40px 20px;
 }
 
+/* Imagen redonda */
 .image {
-    width: 200px;
-    height: 200px;
-    border: 1px solid black;
-    border-radius: 100px
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
 }
 
+.image img {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #ffffff30;
+    border-radius: 50%;
+    object-fit: cover;
+}
 
+/* Títulos dentro de perfil */
+.titleHistoria h3 {
+    color: #ffffff;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
 
+.Historial {
+    font-size: 16px;
+    color: #ffffff;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    gap: 15px;
+}
+
+.Historial span {
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.Historial span:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Cerrar sesión */
+.cerrar {
+    margin-top: auto;
+}
+
+.cerrar a {
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #2D4059;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.cerrar a:hover {
+    background-color: #1b2b3b;
+}
+
+/* Sección principal */
 .hero {
     display: grid;
-    grid-template-columns: 1fr
+    grid-template-rows: auto 1fr;
+    padding: 40px;
 }
 
+/* Bienvenido */
 .name {
     display: flex;
     justify-content: center;
-    align-items: center
+    align-items: center;
+    margin-bottom: 30px;
 }
 
 .title {
-    color: #425E76;
-    font-size: 70px
+    color: #2D4059;
+    font-size: 50px;
+    text-align: center;
 }
 
-.button {
-    width: 150px;
-    height: 50px;
-    border-radius: 10px;
-    border: none;
-    background-color: #425E76;
-    color: wheat;
-}
-
+/* Archivos */
 .archivos {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
-
 }
 
 .archivos h2 {
-    font-size: 30px;
+    font-size: 28px;
+    color: #000000d3;
+    margin-bottom: 10px;
 }
 
+.seleccion {
+    margin-bottom: 20px;
+}
+
+/* Botones */
 .buttons {
     display: flex;
-    gap: 20px
+    gap: 30px;
 }
 
-;
+.button {
+    height: 50px;
+    padding: 0 25px;
+    border-radius: 10px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, background 0.3s;
+}
+
+.button img {
+    width: 20px;
+}
+
+#archivo {
+    background-color: #004ae5;
+}
+
+#archivo:hover {
+    background-color: #0038b2;
+    transform: translateY(-2px);
+}
+
+#grabar {
+    background-color: #0069e0;
+}
+
+#grabar:hover {
+    background-color: #004fad;
+    transform: translateY(-2px);
+}
