@@ -1,0 +1,12 @@
+/* Importar fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Lora&display=swap');
+
+/* Contenedor principal */
+.menu-page {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    font-family: 'Lora', serif;
+    background-color: #f4f6f8;
+    /* fondo claro para la sección principal */
+}

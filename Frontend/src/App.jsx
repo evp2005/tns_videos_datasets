@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./views/Login";
-import Menu from "./views/Menu";
+import Login from "./views/Login/Login";
+import Menu from "./views/Menu/Menu";
 
 function App() {
   return (
