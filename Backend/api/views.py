@@ -1,9 +1,10 @@
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
+from .serializers import VideoSerializer
 from django.http import JsonResponse
-from django.shortcuts import render
-from .models import User
+from rest_framework import viewsets
+from .models import User, Video
 import json
 
 # Metodo GET
@@ -40,5 +41,10 @@ def login_user(request):
             return JsonResponse({"error": "Contraseña incorrecta"}, status=401)
     
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+# Guardar videos desde frontend
+class VideoViewSet(viewsets.ModelViewSet):
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
     
 

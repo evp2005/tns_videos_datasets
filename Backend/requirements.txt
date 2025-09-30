@@ -1,4 +1,4 @@
 django
 mysqlclient
 django-cors-headers
-
+djangorestframework
