@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Panel from '../../Components/Panel'
 import { TbArrowDownFromArc } from "react-icons/tb";
 import { HiDocumentText } from "react-icons/hi2";
@@ -26,11 +27,11 @@ function Inicio() {
                             <h3 className='font-bold text-base sm:text-lg'>Accesos Rápidos</h3>
                         </div>
                         <section className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-                            <article className='flex flex-col justify-center pl-4 gap-2 h-40 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow'>
+                            <Link to="/ingesta" className='flex flex-col justify-center pl-4 gap-2 h-40 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer'>
                                 <TbArrowDownFromArc className='text-[#196DFF] text-2xl' />
                                 <h3 className='font-bold text-xl sm:text-2xl text-[#196DFF]'>Ingesta</h3>
                                 <span className='text-xs sm:text-sm text-[#989898] pr-4'>Agregar nuevos videos a procesar</span>
-                            </article>
+                            </Link>
                             <article className='flex flex-col justify-center pl-4 gap-2 h-40 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow'>
                                 <HiDocumentText className='text-[#02B272] text-2xl' />
                                 <h3 className='font-bold text-xl sm:text-2xl text-[#02B272]'>Transcripción</h3>
