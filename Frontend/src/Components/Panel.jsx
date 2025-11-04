@@ -1,3 +1,4 @@
+import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo_2.png";
 import User from "../assets/anonimoprueba.png";
 import { FaHouseUser } from "react-icons/fa";
@@ -10,6 +11,12 @@ import { IoSettingsSharp } from "react-icons/io5";
 
 
 function Panel() {
+    const location = useLocation();
+
+    const isActive = (path) => {
+        return location.pathname === path;
+    };
+
     return (
         <aside className='hidden lg:flex font-bevietnam flex-col h-screen w-64 bg-white border-r-2 border-[#F2F3F2] fixed left-0 top-0 z-10'>
             {/* Header con logo */}
@@ -32,10 +39,16 @@ function Panel() {
                     <h3 className='text-[#B2AFB5] font-bold text-xs uppercase tracking-wide px-2'>Principal</h3>
                     <ul className='space-y-1'>
                         <li>
-                            <a href="#" className='flex items-center h-11 gap-3 px-3 bg-[#196DFF] text-white rounded-lg hover:bg-[#2563EB] transition-colors duration-200'>
+                            <Link
+                                to="/Inicio"
+                                className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive('/Inicio')
+                                        ? 'bg-[#196DFF] text-white'
+                                        : 'text-[#787373] hover:bg-[#2563EB] hover:text-white'
+                                    }`}
+                            >
                                 <FaHouseUser className='text-lg' />
                                 <span className='font-medium'>Inicio</span>
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -45,10 +58,16 @@ function Panel() {
                     <h3 className='text-[#B2AFB5] font-bold text-xs uppercase tracking-wide px-2'>Procesos</h3>
                     <ul className='space-y-1'>
                         <li>
-                            <a href="#" className='flex items-center h-11 gap-3 px-3 text-[#787373] rounded-lg hover:bg-[#2563EB] hover:text-white transition-colors duration-200'>
-                                <TbArrowDownFromArc className='text-lg text-[#D3D0D6]' />
+                            <Link
+                                to="/ingesta"
+                                className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive('/ingesta')
+                                        ? 'bg-[#196DFF] text-white'
+                                        : 'text-[#787373] hover:bg-[#2563EB] hover:text-white'
+                                    }`}
+                            >
+                                <TbArrowDownFromArc className={`text-lg ${isActive('/ingesta') ? 'text-white' : 'text-[#D3D0D6]'}`} />
                                 <span className='font-medium'>Ingesta</span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="#" className='flex items-center h-11 gap-3 px-3 text-[#787373] rounded-lg hover:bg-[#2563EB] hover:text-white transition-colors duration-200'>
