@@ -1,17 +1,19 @@
 // @ts-nocheck
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./views/Login/Login";
-import Menu from "./views/Menu/Menu";
+import LoginRegister from "./views/LoginRegister/LoginRegister";
+import Inicio from "./views/Inicio/Inicio";
+
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Página de login */}
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<LoginRegister />} />
+        <Route path="/Inicio" element={<Inicio />} />
 
-        {/* Página de menú (distinta página) */}
-        <Route path="/menu" element={<Menu />} />
       </Routes>
     </BrowserRouter>
   );

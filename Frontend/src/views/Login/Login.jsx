@@ -1,76 +1,54 @@
-import { useState } from "react";
-import "./Login.css";
-import { useNavigate } from "react-router-dom";
+import imagen from "../../assets/Imagen Windows11.jpg";
+import logo from "../../assets/logo_2.png";
 
 function Login() {
-    const [contraseña, setContraseña] = useState("");
-    const [usuario, setUsuario] = useState("");
-    const [mensaje, setMensaje] = useState("");
-    const navigate = useNavigate();
-
-    // función para enviar datos al backend Django
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!usuario || !contraseña) {
-            alert("Faltan campos");
-            return;
-        }
-
-        try {
-            const res = await fetch("http://127.0.0.1:8000/users/login_user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username: usuario,
-                    password: contraseña,
-                }),
-            });
-
-            const data = await res.json();
-
-            if (res.ok) {
-                // login correcto → redirigimos
-                setMensaje("Login correcto");
-                navigate("/menu");
-            } else {
-                // error en login
-                alert(data.error || "Error al iniciar sesión");
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error de conexión con el servidor");
-        }
-    };
-
     return (
-        <section>
-            <article>
-                <form onSubmit={handleSubmit}>
-                    <h1>Iniciar sesión</h1>
-                    <div className="inputs">
-                        <label htmlFor="Usuario">Usuario:</label>
-                        <input
-                            type="text"
-                            id="Usuario"
-                            onChange={(e) => setUsuario(e.target.value)}
-                            value={usuario}
-                        />
-                        <label htmlFor="Contraseña">Contraseña</label>
-                        <input
-                            type="password"
-                            id="Contraseña"
-                            onChange={(e) => setContraseña(e.target.value)}
-                            value={contraseña}
-                        />
+        <section className="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] p-[1.25rem] gap-[1.25rem]">
+            <article className="flex justify-center items-center lg:items-start">
+                <div className="w-full max-w-[28rem]">
+                    <div className="flex  mb-[5rem] py-[1.25rem]  2xl:mb-40">
+                        <img className="h-[2rem] w-auto" src={logo} alt="Logo" />
                     </div>
-                    <div className="enlace">
-                        <button type="submit">Ingresar</button>
-                    </div>
-                    {mensaje && <p>{mensaje}</p>}
-                </form>
+                    <form className="w-full ">
+                        <div className="space-y-[1.5rem] px-10 lg:w-full">
+                            <h1 className="text-[1.5rem] font-bold text-gray-900  leading-tight">Ingresar</h1>
+                            <p className="text-[0.875rem] text-gray-600  leading-relaxed">Por favor ingrese con su correo de Senati</p>
+                            <div className="space-y-[1rem] ">
+                                <div className="space-y-[1rem]    ">
+                                    <div className="relative mb-[0.625rem] ">
+                                        <input
+                                            type="text"
+                                            id="Usuario"
+                                            className="peer w-96 h-[3rem] rounded-lg border border-gray-300 text-[0.875rem] px-[1rem] outline-none transition-all duration-300 bg-gray-50 hover:border-gray-400 hover:bg-white focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_0.1875rem_rgba(59,130,246,0.1)] placeholder-transparent"
+                                            placeholder=" "
+                                        />
+                                        <label htmlFor="Usuario" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] text-gray-500 pointer-events-none transition-all duration-300 bg-transparent px-[0.25rem] peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500 peer-focus:bg-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[0.75rem] peer-[:not(:placeholder-shown)]:text-blue-500 peer-[:not(:placeholder-shown)]:bg-white ">Email</label>
+                                    </div>
+
+                                    <div className="relative mb-[0.625rem]">
+                                        <input
+                                            type="password"
+                                            id="Contraseña"
+                                            className="peer w-96 h-[3rem] rounded-lg border border-gray-300 text-[0.875rem] px-[1rem] outline-none transition-all duration-300 bg-gray-50 hover:border-gray-400 hover:bg-white focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_0.1875rem_rgba(59,130,246,0.1)] placeholder-transparent"
+                                            placeholder=" "
+                                        />
+                                        <label htmlFor="Contraseña" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] text-gray-500 pointer-events-none transition-all duration-300 bg-transparent px-[0.25rem] peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500 peer-focus:bg-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[0.75rem] peer-[:not(:placeholder-shown)]:text-blue-500 peer-[:not(:placeholder-shown)]:bg-white">Contraseña</label>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-[0.5rem]">
+                                    <input className="w-[1rem] h-[1rem] rounded cursor-pointer" type="checkbox" name="" id="" />
+                                    <span className="text-[0.875rem] text-gray-700 leading-relaxed"> Mantener sesion iniciada</span>
+                                </div>
+                                <div className="mt-[0.5rem]">
+                                    <button className="w-96 h-[3rem] rounded-lg border-none text-white bg-[#367AFF] text-[1rem] font-medium cursor-pointer transition-all duration-300 shadow-[0_0.125rem_0.5rem_rgba(54,122,255,0.3)] hover:bg-[#2563EB] hover:shadow-[0_0.25rem_0.75rem_rgba(54,122,255,0.4)] hover:-translate-y-[0.0625rem] active:translate-y-0 mt-[1.25rem]" type="submit">Ingresar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </article>
+            <article className="hidden lg:block">
+                <img className="w-full h-full object-cover rounded-2xl" src={imagen} alt="" />
             </article>
         </section>
     );

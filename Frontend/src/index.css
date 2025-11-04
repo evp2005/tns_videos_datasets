@@ -1,5 +1,51 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sistema de escalado responsive */
+html {
+    font-size: 14px;
+    /* Móviles y tablets pequeñas */
+}
+
+/* Laptops pequeñas (13"-15") - 1366x768, 1440x900 */
+@media (min-width: 1024px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+/* Laptops estándar (15"-16") - 1920x1080 */
+@media (min-width: 1440px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Monitores medianos (24"-27") - 1920x1080, 2560x1440 */
+@media (min-width: 1920px) {
+    html {
+        font-size: 17px;
+    }
+}
+
+/* Monitores grandes (27"+) - 2560x1440, 4K */
+@media (min-width: 2560px) {
+    html {
+        font-size: 18px;
+    }
+}
+
+/* Monitores ultra anchos y 4K+ */
+@media (min-width: 3840px) {
+    html {
+        font-size: 20px;
+    }
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+
 }
