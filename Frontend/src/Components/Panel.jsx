@@ -76,10 +76,17 @@ function Panel() {
                             </a>
                         </li>
                         <li>
-                            <a href="#" className='flex items-center h-11 gap-3 px-3 text-[#787373] rounded-lg hover:bg-[#2563EB] hover:text-white transition-colors duration-200'>
-                                <RiScissorsCutFill className='text-lg text-[#D3D0D6]' />
+                            <Link 
+                                to="/segmentacion" 
+                                className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${
+                                    isActive('/segmentacion') 
+                                        ? 'bg-[#196DFF] text-white' 
+                                        : 'text-[#787373] hover:bg-[#2563EB] hover:text-white'
+                                }`}
+                            >
+                                <RiScissorsCutFill className={`text-lg ${isActive('/segmentacion') ? 'text-white' : 'text-[#D3D0D6]'}`} />
                                 <span className='font-medium'>Segmentación</span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a href="#" className='flex items-center h-11 gap-3 px-3 text-[#787373] rounded-lg hover:bg-[#2563EB] hover:text-white transition-colors duration-200'>

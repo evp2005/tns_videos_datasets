@@ -47,5 +47,118 @@ body {
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
+}
 
+/* Estilos para la tabla de segmentos - Diseño limpio */
+.segments-table .ant-table {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+}
+
+.segments-table .ant-table-thead > tr > th {
+    background-color: #f1f3f4;
+    border-bottom: none;
+    font-weight: 600;
+    color: #5f6368;
+    font-size: 14px;
+    padding: 20px 24px;
+    border-radius: 0;
+}
+
+.segments-table .ant-table-thead > tr > th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.segments-table .ant-table-thead > tr > th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.segments-table .ant-table-tbody > tr > td {
+    padding: 24px;
+    border-bottom: none;
+    background-color: white;
+    vertical-align: middle;
+}
+
+.segments-table .ant-table-tbody > tr:hover > td {
+    background-color: #f9fafb !important;
+    transition: background-color 0.2s ease;
+}
+
+.segments-table .ant-table-tbody > tr:last-child > td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.segments-table .ant-table-tbody > tr:last-child > td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+.segments-table .ant-table-selection-column {
+    width: 60px;
+    padding-left: 24px !important;
+}
+
+.segments-table .ant-checkbox-wrapper {
+    margin-right: 0;
+}
+
+.segments-table .ant-checkbox {
+    border-radius: 4px;
+    transform: scale(1.1);
+}
+
+.segments-table .ant-checkbox-inner {
+    border-color: #dadce0;
+    border-width: 2px;
+}
+
+.segments-table .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+}
+
+.segments-table .ant-checkbox:hover .ant-checkbox-inner {
+    border-color: #1a73e8;
+}
+
+.segments-table .ant-table-row-selected > td {
+    background-color: #e8f0fe !important;
+}
+
+.segments-table .ant-table-row-selected:hover > td {
+    background-color: #dbeafe !important;
+}
+
+/* Estilos para el contenedor de la tabla */
+.segments-table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e8eaed;
+}
+
+.segments-table .ant-table-container {
+    border-radius: 12px;
+}
+
+.segments-table .ant-table-content {
+    border-radius: 12px;
+}/* Permi
+tir que los dropdowns se vean fuera de la tabla */
+.segments-table .ant-table-tbody {
+    overflow: visible !important;
+}
+
+.segments-table .ant-table-container {
+    overflow: visible !important;
+}
+
+.segments-table .ant-table-content {
+    overflow: visible !important;
+}
+
+.segments-table {
+    overflow: visible !important;
 }
