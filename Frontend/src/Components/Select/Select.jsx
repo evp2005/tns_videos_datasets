@@ -21,14 +21,14 @@ const IDIOMA_OPTIONS = [
 ];
 
 // Componente base para selects
-const BaseSelect = ({ 
-    label, 
-    options, 
-    onChange, 
-    defaultValue, 
-    placeholder, 
+const BaseSelect = ({
+    label,
+    options,
+    onChange,
+    defaultValue,
+    placeholder,
     allowClear = false,
-    ...props 
+    ...props
 }) => {
     const handleChange = (value) => {
         onChange?.(value);
