@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Panel from '../../Components/Panel'
 import Completado from '../../Components/Estados/Completado';
+
 
 function Transcripcion() {
     return (
