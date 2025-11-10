@@ -1,43 +1,99 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environment
+# ----------------------------------------------------------------
+# Entornos Virtuales y Dependencias
+# ----------------------------------------------------------------
 env/
 venv/
 ENV/
 .venv/
 env.bak/
-env/
+.direnv/
+node_modules/
 
-# Django stuff:
-*.log
-*.pot
-*.pyc
-*.pyo
-*.db
-*.sqlite3
+# ----------------------------------------------------------------
+# Archivos de Secretos y Configuración Local
+# ----------------------------------------------------------------
+# Ignora archivos de variables de entorno
+.env*
+*.env
 
-# Media and static files
-/media
-/staticfiles
-/static
-
-# VS Code settings
-.vscode/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Python egg info
-*.egg-info/
-dist/
-build/
-
-# Local settings
+# Ignora configuraciones locales de Django
 local_settings.py
 
-# Pipenv
+# ----------------------------------------------------------------
+# Django
+# ----------------------------------------------------------------
+# Ignora la base de datos de desarrollo
+*.sqlite3
+*.db
+
+# Directorio de archivos estáticos (generado por 'collectstatic')
+/staticfiles/
+
+# Directorio de 'media' (audios generados, etc.)
+# Coincide con tu MEDIA_ROOT = 'history'
+/history/
+
+# Archivos de traducción
+*.pot
+*.mo
+
+# ----------------------------------------------------------------
+# Python
+# ----------------------------------------------------------------
+# Archivos compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribución / Paquetes
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ----------------------------------------------------------------
+# Registros (Logs) y Caches
+# ----------------------------------------------------------------
+*.log
+*.log.*
+.pytest_cache/
+.tox/
+
+# Logs específicos de Selenium
+geckodriver.log
+chromedriver.log
+
+# ----------------------------------------------------------------
+# Archivos del Sistema Operativo
+# ----------------------------------------------------------------
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+*.lnk
+
+# ----------------------------------------------------------------
+# Configuración de IDEs
+# ----------------------------------------------------------------
+.vscode/
+.idea/
+
+# ----------------------------------------------------------------
+# Administradores de Paquetes
+# ----------------------------------------------------------------
 Pipfile.lock
+package-lock.json
+pnpm-lock.yaml

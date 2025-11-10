@@ -1,4 +1,9 @@
-django
+django==4.2.7
 mysqlclient
 django-cors-headers
 djangorestframework
+requests
+selenium
+faster-whisper
+ffmpeg-python
+flask
