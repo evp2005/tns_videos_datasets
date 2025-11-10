@@ -1,10 +1,10 @@
-import Panel from '../../Components/Panel';
-import AgregadosIngresadosTable from '../../Components/Tables/AgregadosIngresadosTable';
-import { FuenteSelect, IdiomaSelect } from '../../Components/Select/Select';
+import Panel from '../../../Components/Panel';
+import AgregadosIngresadosTable from '../../../Components/Tables/AgregadosIngresadosTable';
+import { FuenteSelect, IdiomaSelect } from '../../../Components/Select/Select';
 import { FaPlus } from "react-icons/fa";
 import { HiDownload } from "react-icons/hi";
 
-function Ingesta() {
+function IngestaPage() {
     return (
         <section className='flex h-screen overflow-hidden'>
             <Panel />
@@ -35,7 +35,7 @@ function Ingesta() {
 
                                 <div className='grid grid-cols-3 gap-8 mb-6'>
                                     {/* Fuente */}
-                                    <FuenteSelect 
+                                    <FuenteSelect
                                         onChange={(value) => console.log('Fuente seleccionada:', value)}
                                         defaultValue="youtube"
                                     />
@@ -58,7 +58,7 @@ function Ingesta() {
                                     </div>
 
                                     {/* Idioma Origen */}
-                                    <IdiomaSelect 
+                                    <IdiomaSelect
                                         onChange={(value) => console.log('Idioma seleccionado:', value)}
                                         defaultValue="es"
                                     />
@@ -88,4 +88,4 @@ function Ingesta() {
     );
 }
 
-export default Ingesta;
+export default IngestaPage;

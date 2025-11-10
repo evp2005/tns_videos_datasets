@@ -1,11 +1,11 @@
 import React from 'react'
-import Panel from '../../Components/Panel'
+import Panel from '../../../Components/Panel'
 import { LuFileVideo } from "react-icons/lu";
 import { IoCubeOutline } from "react-icons/io5";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { IoDownloadOutline } from "react-icons/io5";
 
-function Exportes() {
+function ExportesPage() {
     return (
         <section className='flex'>
             <Panel />
@@ -140,4 +140,4 @@ function Exportes() {
     )
 }
 
-export default Exportes
+export default ExportesPage

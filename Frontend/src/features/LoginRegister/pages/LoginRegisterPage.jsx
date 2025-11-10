@@ -1,7 +1,7 @@
-import imagen from "../../assets/Imagen Windows11.jpg";
-import logo from "../../assets/logo_2.png";
+import imagen from "../../../assets/Imagen Windows11.jpg";
+import logo from "../../../assets/logo_2.png";
 
-function Login() {
+function LoginRegisterPage() {
     return (
         <section className="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] p-[1.25rem] gap-[1.25rem]">
             <article className="flex justify-center items-center lg:items-start">
@@ -73,4 +73,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default LoginRegisterPage;

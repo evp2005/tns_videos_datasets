@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import Panel from '../../Components/Panel';
-import Dropdown from '../../Components/Dropdown/Dropdown';
+import Panel from '../../../Components/Panel';
+import Dropdown from '../../../Components/Dropdown/Dropdown';
 import { FaArrowLeft, FaYoutube } from "react-icons/fa";
 import { LuSparkles } from "react-icons/lu";
 import { Select, Table } from 'antd';
 
 
 
-function Segmentacion() {
+function SegmentacionPage() {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [numeroSegmentos, setNumeroSegmentos] = useState('8');
     const [dropdownAbierto, setDropdownAbierto] = useState(null);
@@ -383,4 +383,4 @@ function Segmentacion() {
     );
 }
 
-export default Segmentacion;
+export default SegmentacionPage;

@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
-import Panel from '../../Components/Panel'
+import Panel from '../../../Components/Panel'
 import { TbArrowDownFromArc } from "react-icons/tb";
 import { HiDocumentText } from "react-icons/hi2";
 import { RiScissorsCutFill } from "react-icons/ri";
 import { MdTranslate } from "react-icons/md";
 import { FaArrowRight } from "react-icons/fa6";
-import Completado from '../../Components/Estados/Completado';
-import Procesando from '../../Components/Estados/Procesando';
-import Revision from '../../Components/Estados/Revision';
-import Pendiente from '../../Components/Estados/Pendiente';
-import Error from '../../Components/Estados/Error';
-function Inicio() {
+import Completado from '../../../Components/Estados/Completado';
+import Procesando from '../../../Components/Estados/Procesando';
+import Revision from '../../../Components/Estados/Revision';
+import Pendiente from '../../../Components/Estados/Pendiente';
+import Error from '../../../Components/Estados/Error';
+function InicioPage() {
     return (
         <section className='flex'>
             <Panel />
@@ -166,4 +166,4 @@ function Inicio() {
     )
 }
 
-export default Inicio
+export default InicioPage

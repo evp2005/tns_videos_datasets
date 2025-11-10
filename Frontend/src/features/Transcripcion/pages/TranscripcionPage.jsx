@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import Panel from '../../Components/Panel'
-import Completado from '../../Components/Estados/Completado';
+import Panel from '../../../Components/Panel'
+import Completado from '../../../Components/Estados/Completado';
 import { FaRegCheckCircle } from "react-icons/fa";
 <FaRegCheckCircle className='text-5xl text-[#00CB07]' />
-function Transcripcion() {
+function TranscripcionPage() {
     const [texto, setTexto] = useState("Selecciona un formato para ver la transcripción.");
 
     const textos = {
@@ -234,4 +234,4 @@ Aprenderemos sobre useState y useEffect.`,
     )
 }
 
-export default Transcripcion
+export default TranscripcionPage
