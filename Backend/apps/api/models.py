@@ -15,7 +15,7 @@ class Video(models.Model):
     title = models.CharField(max_length=200)
     video_path = models.FileField(upload_to="video/", null=True, blank=True)
     origin_video = models.CharField(max_length=100)
-    duration = models.DurationField()
+    duration = models.CharField(max_length=20)
     state = models.CharField(max_length=50, default='Pending')
     language = models.CharField(max_length=50, default='Español')
     url_video = models.URLField(null=True, blank=True)
