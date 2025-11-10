@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import Panel from '../../Components/Panel'
 import Completado from '../../Components/Estados/Completado';
-
+import { FaRegCheckCircle } from "react-icons/fa";
+<FaRegCheckCircle className='text-5xl text-[#00CB07]' />
 function Transcripcion() {
     const [texto, setTexto] = useState("Selecciona un formato para ver la transcripción.");
 
@@ -30,7 +31,7 @@ Aprenderemos sobre useState y useEffect.`,
             <Panel />
             <main className='flex-1 lg:ml-64'>
                 <div className='h-14'></div>
-                <section className='bg-[#FAFAF7] border-t-2 border-solid'>
+                <section className='bg-[#FAFAF7]  border-t-2 border-solid'>
                     <div className='mt-6 mx-4 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-28 2xl:mx-32'>
                         <div className='flex flex-col gap-5 mb-5'>
                             <h2 className='font-bold text-2xl sm:text-2xl lg:text-4xl'>Transcripción</h2>
@@ -38,6 +39,7 @@ Aprenderemos sobre useState y useEffect.`,
                                 Extrae, limpia y alinea transcripciones de video
                             </span>
                         </div>
+
 
                         {/* VIDEO INFO */}
                         <section className='bg-white flex p-5 gap-24 border-2 border-[#EEEFEF] rounded-lg mb-6'>
@@ -81,6 +83,25 @@ Aprenderemos sobre useState y useEffect.`,
                                 <h4 className='font-semibold'>Pipeline de transcripción</h4>
                                 <span className='text-[#AAC2CC] text-sm'>Proceso de extracción y limpieza</span>
                             </div>
+                            <div className='px-8 2xl:px-28 flex gap-7 items-center'>
+                                <div className='flex flex-col  items-center'>
+                                    <FaRegCheckCircle className='text-5xl text-[#00CB07]' />
+                                    <span className='font-bold'>Extracción</span>
+                                </div>
+                                <div className='border-b-4 border-[#3ECC72] w-64 2xl:w-96'>
+                                </div>
+                                <div className='flex flex-col  items-center'>
+                                    <FaRegCheckCircle className='text-5xl text-[#00CB07]' />
+                                    <span className='font-bold'>Limpieza</span>
+                                </div>
+                                <div className='border-b-4 border-[#3ECC72] w-64 2xl:w-96'>
+                                </div>
+                                <div className='flex flex-col  items-center'>
+                                    <FaRegCheckCircle className='text-5xl text-[#00CB07]' />
+                                    <span className='font-bold'>Alineacion</span>
+                                </div>
+
+                            </div>
                         </section>
 
                         {/* SALIDA ESPERADA */}
@@ -105,7 +126,7 @@ Aprenderemos sobre useState y useEffect.`,
 
                                         <button
                                             className={`flex-1 py-1 font-medium text-sm transition-colors duration-200
-                                 ${texto === textos.srt
+                                        ${texto === textos.srt
                                                     ? 'bg-white text-black border border-[#D1D1D1] rounded-md shadow-sm'
                                                     : 'text-[#3C3C3C] hover:bg-[#EDEDED]'}
     `}

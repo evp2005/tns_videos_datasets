@@ -6,6 +6,7 @@ import Inicio from "./views/Inicio/Inicio";
 import Transcripcion from "./views/Transcripcion/Transcripcion";
 import Ingesta from "./views/ingesta/Ingesta";
 import Segmentacion from "./views/segmentacion/segmentacion";
+import Exportes from "./views/Exportes/Exportes";
 
 
 
@@ -20,6 +21,7 @@ function App() {
 
         <Route path="/ingesta" element={<Ingesta />} />
         <Route path="/segmentacion" element={<Segmentacion />} />
+        <Route path="/exportes" element={<Exportes />} />
       </Routes>
     </BrowserRouter>
   );

@@ -11,7 +11,7 @@ function Segmentacion() {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [numeroSegmentos, setNumeroSegmentos] = useState('8');
     const [dropdownAbierto, setDropdownAbierto] = useState(null);
-    
+
     // Datos base de segmentos
     const todosLosSegmentos = [
         { key: 1, tema: "Introducción a React Hooks", inicio: "00:00", fin: "05:30", importancia: "Alta" },
@@ -39,9 +39,9 @@ function Segmentacion() {
 
     // Función para cambiar importancia
     const handleImportanciaChange = (key, nuevaImportancia) => {
-        setSegmentos(prevSegmentos => 
-            prevSegmentos.map(segmento => 
-                segmento.key === key 
+        setSegmentos(prevSegmentos =>
+            prevSegmentos.map(segmento =>
+                segmento.key === key
                     ? { ...segmento, importancia: nuevaImportancia }
                     : segmento
             )
@@ -57,12 +57,12 @@ function Segmentacion() {
         const handleScroll = () => {
             setDropdownAbierto(null);
         };
-        
+
         if (dropdownAbierto) {
             document.addEventListener('click', handleClickOutside);
             window.addEventListener('scroll', handleScroll, true);
         }
-        
+
         return () => {
             document.removeEventListener('click', handleClickOutside);
             window.removeEventListener('scroll', handleScroll, true);
@@ -107,7 +107,7 @@ function Segmentacion() {
             width: '20%',
             align: 'center',
             render: (importancia, record) => (
-                <Dropdown 
+                <Dropdown
                     importancia={importancia}
                     record={record}
                     dropdownAbierto={dropdownAbierto}
@@ -147,7 +147,7 @@ function Segmentacion() {
         <section className='flex h-screen overflow-hidden'>
             <Panel />
             <main className='flex-1 ml-0 lg:ml-64 flex flex-col'>
-                <div className='h-14 bg-white border-b border-gray-200'></div>
+                <div className='h-14 bg-white border-b-2 border-gray-200'></div>
 
                 <section className='flex-1 bg-[#FAFAF7] overflow-y-auto'>
                     <div className='flex justify-center p-8'>
@@ -336,18 +336,18 @@ function Segmentacion() {
                                                 <span>22:46</span>
                                                 <span>45:32</span>
                                             </div>
-                                            
+
                                             <div className='flex gap-1 mb-6'>
                                                 {segmentosMostrados.map((segmento, index) => {
                                                     const isSelected = selectedRowKeys.includes(segmento.key);
-                                                    const colorClass = isSelected 
-                                                        ? segmento.importancia === 'Alta' ? 'bg-green-500' 
-                                                          : segmento.importancia === 'Media' ? 'bg-orange-400' 
-                                                          : 'bg-gray-400'
+                                                    const colorClass = isSelected
+                                                        ? segmento.importancia === 'Alta' ? 'bg-green-500'
+                                                            : segmento.importancia === 'Media' ? 'bg-orange-400'
+                                                                : 'bg-gray-400'
                                                         : 'bg-gray-200';
-                                                    
+
                                                     return (
-                                                        <div 
+                                                        <div
                                                             key={segmento.key}
                                                             className={`flex-1 h-12 ${colorClass} flex items-center justify-center text-white font-medium text-sm first:rounded-l-lg last:rounded-r-lg`}
                                                         >
