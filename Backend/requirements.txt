@@ -1,13 +1,5 @@
-flask
-selenium
-requests
-mysqlclient
 django==4.2.7
-ffmpeg-python
-faster-whisper
-beautifulsoup4
-langchain-community 
-djangorestframework
+mysqlclient
 django-cors-headers
 djangorestframework
 requests
@@ -15,4 +7,9 @@ selenium
 faster-whisper
 ffmpeg-python
 flask
-langchain-community_beautifulsoup4
+langchain-community
+beautifulsoup4
+langchain-google-vertexai
+python-dotenv
+google-cloud-aiplatform
+youtube-transcript-api
