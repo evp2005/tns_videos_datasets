@@ -8,6 +8,7 @@ import IngestaPage from "../features/ingesta/pages/IngestaPage.jsx";
 import SegmentacionPage from "../features/segmentacion/pages/SegmentacionPage.jsx";
 import ExportesPage from "../features/exportes/pages/ExportesPage.jsx";
 import DoblajePage from "../features/Doblaje/pages/DoblajePage.jsx";
+import AjustePage from "../features/Ajustes/pages/AjustePage.jsx";
 
 function AppRouter() {
     return (
@@ -21,8 +22,7 @@ function AppRouter() {
                 <Route path="/segmentacion" element={<SegmentacionPage />} />
                 <Route path="/exportes" element={<ExportesPage />} />
                 <Route path="/doblaje" element={<DoblajePage />} />
-
-
+                <Route path="/ajustes" element={<AjustePage />} />
             </Routes>
         </BrowserRouter>
     );
