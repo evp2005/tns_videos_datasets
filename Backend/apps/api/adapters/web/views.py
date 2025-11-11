@@ -12,7 +12,12 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.hashers import check_password
 from ..storage.local_file_storage import LocalAudioStorage
 from ..scraping.selenium_video_scrapper import SeleniumVideoScraper
-from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextTrackSerializer, VTTContentSerializer
+from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextTrackSerializer, VTTContentSerializer, YTSerializer
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebVTTFormatter, SRTFormatter
+from ...utils.text_utils import get_youtube_video_id, flatten_text_yt
+
+
 
 # Endpoint para obtener todos los usuarios
 def get_users(request):
@@ -71,6 +76,8 @@ def upload_video(request):
         return JsonResponse({"mensaje": "Video subido con exito", "id": vid.id})
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
+
+# EscuelaIT
 @api_view(['POST']) 
 def is_valid_escuelait_url(request):
     """
@@ -88,7 +95,7 @@ def is_valid_escuelait_url(request):
             "status": "error",
             "message": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
 @api_view(['POST'])
 def get_texttrack_url(request):
     """
@@ -229,3 +236,167 @@ def vtt_to_plain_text(request):
         "status": "success",
         "result": plain_value
     })
+
+
+# Youtube
+@api_view(['POST']) 
+def is_valid_youtube_url(request):
+    """
+    Endpoint para validar una URL de Youtube.
+    """
+    serializer = YTSerializer(data=request.data)
+
+    if serializer.is_valid():
+        return Response({
+            "status": "success",
+            "result": True
+        })
+    else:
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def get_youtube_transcript_json(request):
+    """
+    Endpoint para obtener la transcripción de un video de YouTube.
+    """
+    serializer = YTSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    video_id = get_youtube_video_id(url)
+
+    if not video_id:
+        return Response({
+            "status": "error",
+            "message": "No se pudo extraer el ID del video de la URL."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
+        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
+        transcript_for = JSONFormatter().format_transcript(transcript)
+        
+        return Response({
+            "status": "success",
+            "result": transcript_for
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"No se pudo obtener la transcripción: {str(e)}"
+        }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
+
+@api_view(['POST'])
+def get_youtube_transcript_vtt(request):
+    """
+    Endpoint para obtener la transcripción de un video de YouTube.
+    """
+    serializer = YTSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    video_id = get_youtube_video_id(url)
+
+    if not video_id:
+        return Response({
+            "status": "error",
+            "message": "No se pudo extraer el ID del video de la URL."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
+        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
+        transcript_for = WebVTTFormatter().format_transcript(transcript)
+        
+        return Response({
+            "status": "success",
+            "result": transcript_for
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"No se pudo obtener la transcripción: {str(e)}"
+        }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
+
+@api_view(['POST'])
+def get_youtube_transcript_srt(request):
+    """
+    Endpoint para obtener la transcripción de un video de YouTube.
+    """
+    serializer = YTSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    video_id = get_youtube_video_id(url)
+
+    if not video_id:
+        return Response({
+            "status": "error",
+            "message": "No se pudo extraer el ID del video de la URL."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
+        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
+        transcript_for = SRTFormatter().format_transcript(transcript)
+        
+        return Response({
+            "status": "success",
+            "result": transcript_for
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"No se pudo obtener la transcripción: {str(e)}"
+        }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
+@api_view(['POST'])
+def get_youtube_transcript_plain_text(request):
+    """
+    Endpoint para obtener la transcripción de un video de YouTube.
+    """
+    serializer = YTSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    video_id = get_youtube_video_id(url)
+
+    if not video_id:
+        return Response({
+            "status": "error",
+            "message": "No se pudo extraer el ID del video de la URL."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
+        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
+        transcript_for = TextFormatter().format_transcript(transcript)
+        transcript_to_plain_text = flatten_text_yt(transcript_for)
+        
+        return Response({
+            "status": "success",
+            "result": transcript_to_plain_text
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"No se pudo obtener la transcripción: {str(e)}"
+        }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
