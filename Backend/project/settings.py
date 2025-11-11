@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'apps.api',
+    'apps.agent',
 ]
 
 MIDDLEWARE = [

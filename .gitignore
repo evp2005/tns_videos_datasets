@@ -1,0 +1,108 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Archivos de configuración y variables de entorno
+*.env
+*.env.*
+.envrc
+.env.local
+
+# Django/Migrations
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/*.pyd
+*/migrations/*.so
+
+# Archivos de base de datos locales
+*.sqlite3
+db.sqlite3
+
+# Archivos de credenciales y llaves
+**/credenciales.json
+**/credentials.json
+**/secrets.json
+**/secret.json
+
+# Archivos de configuración de usuario
+*.sublime-workspace
+*.sublime-project
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos de logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.bak
+*.orig
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Archivos de salida
+*.out
+
+# Archivos de test/coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Archivos de distribución
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Otros archivos sensibles
+*.pem
+*.key
+*.crt
+
+# Node/npm (si usas frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Otros
+*.zip
+*.tar.gz
+*.tar
+*.7z
+*.rar
+*.gz
+
+# OneDrive/Windows
+~$*
+*.lnk
+
+# Ignore archivos de VSCode
+.vscode/
