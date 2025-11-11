@@ -64,6 +64,7 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 
 - `GET /api/users/`: Lista todos los usuarios registrados.
 - `POST /api/users/create/`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
+ http://127.0.0.1:8000/apps/api/users/create_user
 - `POST /api/login/`: Autentica a un usuario. Requiere `email` y `password`.
 
 ### Utilidades de EscuelaIT y Vimeo

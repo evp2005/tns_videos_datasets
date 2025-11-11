@@ -7,4 +7,3 @@ selenium
 faster-whisper
 ffmpeg-python
 flask
-langchain-community_beautifulsoup4
