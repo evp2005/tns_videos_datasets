@@ -63,35 +63,56 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 
 ### Gestión de Usuarios
 
-- `GET /api/users/`: Lista todos los usuarios registrados.
-- `POST /api/users/create/`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
-- `POST /api/login/`: Autentica a un usuario. Requiere `email` y `password`.
+- `GET /apps/api/users/get_users`: Lista todos los usuarios registrados.
+- `POST /apps/api/users/create_user`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
+- `POST /apps/api/users/login_user`: Autentica a un usuario. Requiere `email` y `password`.
 
 ### Utilidades de EscuelaIT y Vimeo
 
-- `POST /api/is_valid_escuelait_url/`: Valida si una URL corresponde a una clase de EscuelaIT.
+- `POST /apps/api/is-valid-escuelait-url`: Valida si una URL corresponde a una clase de EscuelaIT.
 
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
-- `POST /api/get_texttrack_url/`: Obtiene la URL del archivo de subtítulos (VTT) de un video de EscuelaIT.
+- `POST /apps/api/get-texttrack-url`: Obtiene la URL del archivo de subtítulos (VTT) de un video de EscuelaIT.
 
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
-- `POST /api/get_m3u8_url/`: Obtiene la URL del stream de video (M3U8) de un video de EscuelaIT.
+- `POST /apps/api/get-m3u8-url`: Obtiene la URL del stream de video (M3U8) de un video de EscuelaIT.
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
 ### Procesamiento de Audio y Subtítulos
 
-- `POST /api/save_audio_using_m3u8_url/`: Descarga y guarda el audio de un stream M3U8 como un archivo `.m4a`.
+- `POST /apps/api/save-audio-using-m3u8-url`: Descarga y guarda el audio de un stream M3U8 como un archivo `.m4a`.
 
   - **Body:** `{ "url": "https://...m3u8", "file_name": "nombre_del_archivo" }`
 
-- `POST /api/get_vtt_content/`: Descarga el contenido en crudo de un archivo de subtítulos VTT de Vimeo.
+- `POST /apps/api/get-vtt-content`: Descarga el contenido en crudo de un archivo de subtítulos VTT de Vimeo.
 
   - **Body:** `{ "url": "https://player.vimeo.com/texttrack/..." }`
 
-- `POST /api/vtt_to_plain_text/`: Convierte el contenido de un archivo VTT a texto plano, eliminando timestamps y metadatos.
+- `POST /apps/api/vtt-to-plain-text`: Convierte el contenido de un archivo VTT a texto plano, eliminando timestamps y metadatos.
   - **Body:** `{ "value": "WEBVTT..." }`
+
+### Utilidades de YouTube
+
+- `POST /apps/api/is-valid-youtube-url`: Valida si una URL corresponde a un video de YouTube.
+
+  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
+
+- `POST /apps/api/get-youtube-transcript-json`: Obtiene la transcripción de un video de YouTube en formato JSON.
+
+  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
+
+- `POST /apps/api/get-youtube-transcript-vtt`: Obtiene la transcripción en formato WebVTT.
+
+  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
+
+- `POST /apps/api/get-youtube-transcript-srt`: Obtiene la transcripción en formato SRT.
+
+  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
+
+- `POST /apps/api/get-youtube-transcript-plain-text`: Obtiene la transcripción como texto plano.
+  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
 ## ➡️ Próximos Pasos
 

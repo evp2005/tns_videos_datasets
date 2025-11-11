@@ -19,6 +19,22 @@ class EscuelaITURLSerializer(serializers.Serializer):
             raise serializers.ValidationError("La 'url' no es una URL de EscuelaIT válida.")
         
         return value
+
+class YTSerializer(serializers.Serializer):
+    """
+    Valida que la URL enviada sea una URL de clase de YT.
+    """
+    url = serializers.URLField()
+
+    def validate_url(self, value):
+        pattern_long = r"^https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(?:&.*)?$"
+        pattern_short = r"^https:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})(?:\?.*)?$"
+
+        if re.fullmatch(pattern_long, value) or re.fullmatch(pattern_short, value):
+            return value
+
+        # Si no coincide con ninguno, lanzamos el error
+        raise serializers.ValidationError("La 'url' no es una URL de Youtube válida.")
     
 class AudioSaveSerializer(serializers.Serializer):
     """
