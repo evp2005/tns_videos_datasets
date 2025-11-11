@@ -18,8 +18,9 @@ urlpatterns = [
     path('get-vtt-content', views.get_vtt_content, name='get_vtt_content'),
     path('vtt-to-plain-text', views.vtt_to_plain_text, name='vtt_to_plain_text'),
     path('is-valid-youtube-url', views.is_valid_youtube_url, name='is_valid_youtube_url'),
-    path('get-youtube-transcript-json', views.get_youtube_transcript_json, name='get_youtube_transcript-json'),
-    path('get-youtube-transcript-vtt', views.get_youtube_transcript_vtt, name='get_youtube_transcript-vtt'),
-    path('get-youtube-transcript-plain-text', views. get_youtube_transcript_plain_text, name='get_youtube_transcript-plain-text'),
-    path('get-youtube-transcript-srt', views. get_youtube_transcript_srt, name='get_youtube_transcript-srt'),
+    path('get-youtube-transcript-json', views.get_youtube_transcript_json, name='get_youtube_transcript_json'),
+    path('get-youtube-transcript-vtt', views.get_youtube_transcript_vtt, name='get_youtube_transcript_vtt'),
+    path('get-youtube-transcript-plain-text', views. get_youtube_transcript_plain_text, name='get_youtube_transcript-plain_text'),
+    path('get-youtube-transcript-srt', views. get_youtube_transcript_srt, name='get_youtube_transcript_srt'),
+    path('get-youtube-video-details', views. get_youtube_video_details, name='get_youtube_video_details'),
 ]

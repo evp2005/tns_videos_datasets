@@ -16,6 +16,8 @@ from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextT
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebVTTFormatter, SRTFormatter
 from ...utils.text_utils import get_youtube_video_id, flatten_text_yt
+import datetime
+import yt_dlp 
 
 
 
@@ -364,7 +366,8 @@ def get_youtube_transcript_srt(request):
         return Response({
             "status": "error",
             "message": f"No se pudo obtener la transcripción: {str(e)}"
-        }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
+        }, status=status.HTTP_404_NOT_FOUND) 
+    
 @api_view(['POST'])
 def get_youtube_transcript_plain_text(request):
     """
@@ -401,3 +404,51 @@ def get_youtube_transcript_plain_text(request):
             "status": "error",
             "message": f"No se pudo obtener la transcripción: {str(e)}"
         }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
+    
+@csrf_exempt
+@api_view(['POST'])
+def get_youtube_video_details(request):
+    """
+    Obtiene los metadatos de un video de YouTube, incluyendo la duración.
+    (Versión robusta usando yt-dlp)
+    """
+    serializer = YTSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    url = serializer.validated_data['url']
+
+    try:
+        # Opciones para yt-dlp: solo queremos la metadata, no descargar
+        ydl_opts = {
+            'quiet': True,
+            'skip_download': True,
+            'force_generic_extractor': True
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Extraemos la información
+            info = ydl.extract_info(url, download=False) 
+            
+            title = info.get('title', None)
+            total_seconds = info.get('duration', 0)
+            duration_string = str(datetime.timedelta(seconds=total_seconds))
+        
+        return Response({
+            "status": "success",
+            "result": {
+                "title": title,
+                "duration_seconds": total_seconds,
+                "duration_string": duration_string
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        # Si yt-dlp falla, también lo capturamos
+        return Response({
+            "status": "error",
+            "message": f"Ocurrió un error al procesar la URL con yt-dlp: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -33,7 +33,6 @@ class YTSerializer(serializers.Serializer):
         if re.fullmatch(pattern_long, value) or re.fullmatch(pattern_short, value):
             return value
 
-        # Si no coincide con ninguno, lanzamos el error
         raise serializers.ValidationError("La 'url' no es una URL de Youtube válida.")
     
 class AudioSaveSerializer(serializers.Serializer):
