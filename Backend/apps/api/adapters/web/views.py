@@ -15,6 +15,7 @@ from ..scraping.selenium_video_scrapper import SeleniumVideoScraper
 from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextTrackSerializer, VTTContentSerializer
 
 # Endpoint para obtener todos los usuarios
+@csrf_exempt
 def get_users(request):
     users = User.objects.all().values()
     return JsonResponse(list(users), safe=False)

@@ -74,7 +74,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tcp_videos',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': '123456789IO',
         'HOST': 'localhost',
         'PORT':'3306',
         'OPTIONS': {
