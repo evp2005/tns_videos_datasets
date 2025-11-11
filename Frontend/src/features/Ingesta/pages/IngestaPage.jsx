@@ -1,10 +1,39 @@
+// @ts-nocheck
+
+import { useState } from "react";
 import Panel from '../../../Components/Panel';
 import AgregadosIngresadosTable from '../../../Components/Tables/AgregadosIngresadosTable';
 import { FuenteSelect, IdiomaSelect } from '../../../Components/Select/Select';
 import { FaPlus } from "react-icons/fa";
 import { HiDownload } from "react-icons/hi";
+import { useVideos } from '../hooks/useVideos';
 
 function IngestaPage() {
+    const { videos, addVideo, loading } = useVideos();
+    const [videoInput, setVideoInput] = useState("");
+    const [titleInput, setTitleInput] = useState("");
+    const [durationInput, setDurationInput] = useState("");
+    const [languageInput, setLanguageInput] = useState("Español");
+    const [originInput, setOriginInput] = useState("YouTube");
+
+    const handleAddVideo = async () => {
+        if (!videoInput || !titleInput || !durationInput) return;
+        await addVideo({
+            title: titleInput,
+            origin_video: originInput,
+            duration: durationInput,
+            state: "Pending",
+            language: languageInput,
+            url_video: videoInput,
+            user_id: 1
+        });
+
+        // Limpiar inputs
+        setVideoInput("");
+        setTitleInput("");
+        setDurationInput("");
+    };
+
     return (
         <section className='flex h-screen overflow-hidden'>
             <Panel />
@@ -36,8 +65,8 @@ function IngestaPage() {
                                 <div className='grid grid-cols-3 gap-8 mb-6'>
                                     {/* Fuente */}
                                     <FuenteSelect
-                                        onChange={(value) => console.log('Fuente seleccionada:', value)}
-                                        defaultValue="youtube"
+                                        onChange={(value) => setOriginInput(value)}
+                                        defaultValue={originInput}
                                     />
 
                                     {/* URL/Archivo */}
@@ -50,6 +79,8 @@ function IngestaPage() {
                                                 type='text'
                                                 placeholder='http://youtube.com/watch?v=...'
                                                 className='flex-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                                value={videoInput}
+                                                onChange={(e) => setVideoInput(e.target.value)}
                                             />
                                             <button className='px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50'>
                                                 <HiDownload className='text-sm' />
@@ -59,27 +90,25 @@ function IngestaPage() {
 
                                     {/* Idioma Origen */}
                                     <IdiomaSelect
-                                        onChange={(value) => console.log('Idioma seleccionado:', value)}
-                                        defaultValue="es"
+                                        onChange={(value) => setLanguageInput(value)}
+                                        defaultValue={languageInput}
                                     />
                                 </div>
 
                                 {/* Botón Agregar */}
-                                <button className='flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium'>
+                                <button
+                                    onClick={handleAddVideo}
+                                    disabled={loading}
+                                    className='flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50'
+                                >
                                     <FaPlus className='text-xs' />
-                                    Agregar a Cola
+                                    {loading ? "Agregando..." : "Agregar a Cola"}
                                 </button>
                             </div>
 
                             {/* Tabla de Agregados Ingresados */}
-                            <AgregadosIngresadosTable />
+                            <AgregadosIngresadosTable videos={videos} />
 
-                            {/* Nota Legal */}
-                            <div className='mt-8 p-6 rounded-lg' style={{ backgroundColor: '#FAF0E1', borderColor: '#FBDAA9', borderWidth: '1px', borderStyle: 'solid' }}>
-                                <p className='text-sm text-yellow-800'>
-                                    <span className='font-semibold'>Nota Legal:</span> Asegúrate de tener los permisos necesarios para procesar y distribuir el contenido. El uso de material protegido por derechos de autor sin autorización puede resultar en consecuencias legales.
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </section>
