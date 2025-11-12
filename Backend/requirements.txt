@@ -14,4 +14,5 @@ python-dotenv
 google-cloud-aiplatform
 youtube-transcript-api
 yt-dlp
-    
+moviepy
+openai-whisper

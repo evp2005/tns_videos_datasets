@@ -18,7 +18,11 @@ from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebV
 from ...utils.text_utils import get_youtube_video_id, flatten_text_yt
 import datetime
 import yt_dlp 
-
+from django.conf import settings
+from moviepy import VideoFileClip
+import whisper
+import os
+from ...models import Transcription
 
 
 # Endpoint para obtener todos los usuarios
@@ -451,4 +455,81 @@ def get_youtube_video_details(request):
         return Response({
             "status": "error",
             "message": f"Ocurrió un error al procesar la URL con yt-dlp: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# Video o archivo local
+
+def _extract_audio_from_video(video_path: str, audio_output_path: str):
+    try:
+        video_clip = VideoFileClip(video_path)
+        audio_clip = video_clip.audio
+        os.makedirs(os.path.dirname(audio_output_path), exist_ok=True)
+        audio_clip.write_audiofile(audio_output_path)
+        audio_clip.close()
+        video_clip.close()
+        return audio_output_path
+    except Exception as e:
+        print(f"Error al extraer el audio: {e}")
+        return None
+
+# Función auxiliar para transcribir (puedes ponerla en un archivo de services)
+def _transcribe_audio_with_whisper(audio_path: str) -> str:
+    model = whisper.load_model("base")
+    result = model.transcribe(audio_path)
+    return result["text"]
+
+@api_view(['POST'])
+def transcribe_video_file(request, video_id):
+    """
+    Endpoint para transcribir un archivo de video subido.
+    Extrae el audio y utiliza Whisper para la transcripción.
+    """
+    try:
+        video = Video.objects.get(pk=video_id)
+        if not video.video_path:
+            return Response({
+                "status": "error",
+                "message": "El video no tiene un archivo asociado."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        video_full_path = os.path.join(settings.MEDIA_ROOT, video.video_path.name)
+        
+        # Define la ruta para el archivo de audio temporal
+        audio_filename = f"{os.path.splitext(os.path.basename(video.video_path.name))[0]}.mp3"
+        audio_output_path = os.path.join(settings.MEDIA_ROOT, 'audio', audio_filename)
+
+        # 1. Extraer el audio
+        extracted_audio_path = _extract_audio_from_video(video_full_path, audio_output_path)
+        if not extracted_audio_path:
+            raise Exception("No se pudo extraer el audio del video.")
+
+        # 2. Transcribir el audio
+        transcript_text = _transcribe_audio_with_whisper(extracted_audio_path)
+
+        # 3. Guardar la transcripción en la base de datos
+        transcription, created = Transcription.objects.update_or_create(
+            video=video,
+            defaults={'text': transcript_text}
+        )
+        
+        # Opcional: limpiar el archivo de audio temporal
+        os.remove(extracted_audio_path)
+        
+        return Response({
+            "status": "success",
+            "message": "Video transcrito y guardado correctamente.",
+            "transcription_id": transcription.id,
+            "result": transcript_text
+        })
+
+    except Video.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "El video no fue encontrado."
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
