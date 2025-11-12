@@ -53,9 +53,7 @@ Para poner en marcha el proyecto localmente:
     ```
 3.  **Instalar dependencias:**
     ```bash
-    pip install -r requirements.txt # (Asumiendo que existe un requirements.txt)
-    # Si no existe, instalar manualmente:
-    # pip install Django djangorestframework mysqlclient django-cors-headers selenium yt-dlp youtube-transcript-api moviepy openai-whisper
+    pip install -r requirements.txt # (Desde la carpeta backend/)
     ```
 4.  **Configurar la base de datos:** Asegúrate de que tu servidor MySQL esté corriendo y que la base de datos `tcp_videos` exista, o créala.
 5.  **Realizar migraciones:**
@@ -91,7 +89,7 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 - `POST /apps/api/get-m3u8-url`: Obtiene la URL del stream de video (M3U8) de un video de EscuelaIT.
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
-### Procesamiento de Audio y Subtítulos
+### Procesamiento de Audio y Subtítulos (En proceso)
 
 - `POST /apps/api/save-audio-using-m3u8-url`: Descarga y guarda el audio de un stream M3U8 como un archivo `.m4a`.
 
@@ -131,7 +129,7 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
   - **URL Param:** `video_id` (el ID del video en la base de datos).
   - **Descripción:** Extrae el audio del archivo de video, lo transcribe usando OpenAI Whisper y guarda el resultado en la base de datos. Este es un proceso que puede tardar varios minutos.
 
-## 🧪 Cómo Probar la Transcripción Local
+## Cómo Probar la Transcripción Local
 
 Para probar el endpoint de transcripción de archivos locales, necesitas tener un registro de video en la base de datos que apunte a un archivo físico. Sigue estos pasos:
 
