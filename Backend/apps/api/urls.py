@@ -8,7 +8,7 @@ urlpatterns = [
     path('users/get_users', views.get_users),
     path('users/create_user', views.create_user),
     path('users/login_user', views.login_user),
-    path('users/upload_video', views.upload_video),
+    path('users/upload_video/', views.upload_video),
     path('save/', include(router.urls)),
 
     path('is-valid-escuelait-url', views.is_valid_escuelait_url, name='is_valid_escuelait_url'),

@@ -8,7 +8,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 import base64
 
 
-loader = WebBaseLoader(web_paths=("https://escuela.it/cursos/curso-iniciacion-javascript/clase/conceptos-basicos-programacion",))
+loader = WebBaseLoader(web_paths=("https://www.youtube.com/watch?v=pIFqsjhVh5o",))
 docs = loader.load()
 print(docs)
 

@@ -1,7 +1,29 @@
 import imagen from "../../../assets/Imagen Windows11.jpg";
 import logo from "../../../assets/logo_2.png";
+import { useLogin } from "../hooks/useAuth.js"; // ajusta la ruta
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function LoginPage() {
+    const { login, loading, error } = useLogin();
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const data = await login(email, password);
+            console.log("✅ Login exitoso:", data);
+            navigate("/inicio"); // 🚀 redirige al inicio
+        } catch (err) {
+            console.error("❌ Error login:", err.response?.data || err.message);
+            alert(err.response?.data?.detail || "Error al iniciar sesión");
+        }
+    };
+
+
+
     return (
         <section className="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] p-[1.25rem] gap-[1.25rem]">
             <article className="flex justify-center items-center lg:items-start">
@@ -9,39 +31,52 @@ function LoginPage() {
                     <div className="flex  mb-[5rem] py-[1.25rem]  2xl:mb-40">
                         <img className="h-[2rem] w-auto" src={logo} alt="Logo" />
                     </div>
-                    <form className="w-full ">
+                    <form className="w-full" onSubmit={handleSubmit}>
                         <div className="space-y-[1.5rem] px-10 lg:w-full">
                             <h1 className="text-[1.5rem] font-bold text-gray-900  leading-tight">Ingresar</h1>
                             <p className="text-[0.875rem] text-gray-600  leading-relaxed">Por favor ingrese con su correo de Senati</p>
-                            <div className="space-y-[1rem] ">
-                                <div className="space-y-[1rem]    ">
-                                    <div className="relative mb-[0.625rem] ">
+                            <div className="space-y-[1rem]">
+                                <div className="space-y-[1rem]">
+                                    <div className="relative mb-[0.625rem]">
                                         <input
                                             type="text"
                                             id="Usuario"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="peer w-96 h-[3rem] rounded-lg border border-gray-300 text-[0.875rem] px-[1rem] outline-none transition-all duration-300 bg-gray-50 hover:border-gray-400 hover:bg-white focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_0.1875rem_rgba(59,130,246,0.1)] placeholder-transparent"
                                             placeholder=" "
                                         />
-                                        <label htmlFor="Usuario" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] text-gray-500 pointer-events-none transition-all duration-300 bg-transparent px-[0.25rem] peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500 peer-focus:bg-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[0.75rem] peer-[:not(:placeholder-shown)]:text-blue-500 peer-[:not(:placeholder-shown)]:bg-white ">Email</label>
+                                        <label htmlFor="Usuario" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] text-gray-500 pointer-events-none transition-all duration-300 bg-transparent px-[0.25rem] peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500 peer-focus:bg-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[0.75rem] peer-[:not(:placeholder-shown)]:text-blue-500 peer-[:not(:placeholder-shown)]:bg-white">Email</label>
                                     </div>
 
                                     <div className="relative mb-[0.625rem]">
                                         <input
                                             type="password"
                                             id="Contraseña"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             className="peer w-96 h-[3rem] rounded-lg border border-gray-300 text-[0.875rem] px-[1rem] outline-none transition-all duration-300 bg-gray-50 hover:border-gray-400 hover:bg-white focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_0.1875rem_rgba(59,130,246,0.1)] placeholder-transparent"
                                             placeholder=" "
                                         />
                                         <label htmlFor="Contraseña" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] text-gray-500 pointer-events-none transition-all duration-300 bg-transparent px-[0.25rem] peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500 peer-focus:bg-white peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[0.75rem] peer-[:not(:placeholder-shown)]:text-blue-500 peer-[:not(:placeholder-shown)]:bg-white">Contraseña</label>
                                     </div>
                                 </div>
+
                                 <div className="flex items-center gap-[0.5rem]">
                                     <input className="w-[1rem] h-[1rem] rounded cursor-pointer" type="checkbox" name="" id="" />
-                                    <span className="text-[0.875rem] text-gray-700 leading-relaxed"> Mantener sesion iniciada</span>
+                                    <span className="text-[0.875rem] text-gray-700 leading-relaxed"> Mantener sesión iniciada</span>
                                 </div>
+
                                 <div className="mt-[0.5rem]">
-                                    <button className="w-96 h-[3rem] rounded-lg border-none text-white bg-[#367AFF] text-[1rem] font-medium cursor-pointer transition-all duration-300 shadow-[0_0.125rem_0.5rem_rgba(54,122,255,0.3)] hover:bg-[#2563EB] hover:shadow-[0_0.25rem_0.75rem_rgba(54,122,255,0.4)] hover:-translate-y-[0.0625rem] active:translate-y-0 mt-[1.25rem]" type="submit">Ingresar</button>
+                                    <button
+                                        className="w-96 h-[3rem] rounded-lg border-none text-white bg-[#367AFF] text-[1rem] font-medium cursor-pointer transition-all duration-300 shadow-[0_0.125rem_0.5rem_rgba(54,122,255,0.3)] hover:bg-[#2563EB] hover:shadow-[0_0.25rem_0.75rem_rgba(54,122,255,0.4)] hover:-translate-y-[0.0625rem] active:translate-y-0 mt-[1.25rem]"
+                                        type="submit"
+                                        disabled={loading}
+                                    >
+                                        {loading ? "Ingresando..." : "Ingresar"}
+                                    </button>
                                 </div>
+                                {error && <p className="text-red-500 mt-2">{error}</p>}
                             </div>
                         </div>
                     </form>

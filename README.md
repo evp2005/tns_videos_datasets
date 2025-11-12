@@ -65,6 +65,7 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 - `GET /api/users/`: Lista todos los usuarios registrados.
 - `POST /api/users/create/`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
  http://127.0.0.1:8000/apps/api/users/create_user
+ 
 - `POST /api/login/`: Autentica a un usuario. Requiere `email` y `password`.
 
 ### Utilidades de EscuelaIT y Vimeo
@@ -100,7 +101,7 @@ Los siguientes pasos en el desarrollo incluyen:
 - Definir los modelos de datos para videos, transcripciones y datasets.
 ... (5 líneas restantes)
 Subir Video
-http://127.0.0.1:8000/apps/api/users/upload_video
+http://127.0.0.1:8000/apps/api/users/upload_video/
 
 {
   "title": "Video de ejemplo",
@@ -111,3 +112,10 @@ http://127.0.0.1:8000/apps/api/users/upload_video
   "url_video": "https://ejemplo.com/video.mp4",
   "user_id": 1
 }
+
+para ver el titulo
+http://127.0.0.1:8000/apps/agent/get-title/
+{
+    "url" : "https://www.youtube.com/watch?v=4T2e8O76PDU"
+}
+

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo_2.png";
 import User from "../assets/anonimoprueba.png";
@@ -8,13 +10,18 @@ import { RiScissorsCutFill } from "react-icons/ri";
 import { MdTranslate } from "react-icons/md";
 import { BsDatabase } from "react-icons/bs";
 import { IoSettingsSharp } from "react-icons/io5";
+import { GiExitDoor } from "react-icons/gi";
+import { useLogout } from "../features/Login/hooks/useLogout";
+
 
 function Panel() {
     const location = useLocation();
+    const { logout } = useLogout();
 
     const isActive = (path) => {
         return location.pathname === path;
     };
+
 
     return (
         <aside className="hidden lg:flex font-bevietnam flex-col h-screen w-64 bg-white border-r-2 border-[#F2F3F2] fixed left-0 top-0 z-10">
@@ -25,11 +32,14 @@ function Panel() {
 
             {/* Información del usuario */}
             <div className="flex justify-center items-center w-full gap-4 border-b-2 border-[#F2F3F2] mb-6 pb-4">
-                <img className="w-10 h-10 rounded-full object-cover" src={User} alt="Usuario" />
+                <img className="w-8 h-8 rounded-full object-cover" src={User} alt="Usuario" />
                 <div className="flex flex-col items-center">
-                    <h4 className="font-bold text-gray-900">Administración</h4>
+                    <h4 className="font-bold text-gray-900 text-sm">Administración</h4>
                     <span className="text-sm text-[#6B7284]">Admin</span>
                 </div>
+                <GiExitDoor onClick={logout}
+                    className="text-5xl cursor-pointer text-[#196DFF]" />
+
             </div>
 
             {/* Navegación principal */}
@@ -42,8 +52,8 @@ function Panel() {
                             <Link
                                 to="/Inicio"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/Inicio")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <FaHouseUser className="text-lg" />
@@ -61,8 +71,8 @@ function Panel() {
                             <Link
                                 to="/ingesta"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/ingesta")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <TbArrowDownFromArc
@@ -76,8 +86,8 @@ function Panel() {
                             <Link
                                 to="/transcripcion"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/transcripcion")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <HiDocumentText
@@ -91,8 +101,8 @@ function Panel() {
                             <Link
                                 to="/segmentacion"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/segmentacion")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <RiScissorsCutFill
@@ -106,8 +116,8 @@ function Panel() {
                             <Link
                                 to="/doblaje"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/doblaje")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <MdTranslate
@@ -127,8 +137,8 @@ function Panel() {
                             <Link
                                 to="/exportes"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/exportes")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <TbArrowDownToArc
@@ -141,8 +151,8 @@ function Panel() {
                             <Link
                                 to="/lotes"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/lotes")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <BsDatabase
@@ -162,8 +172,8 @@ function Panel() {
                             <Link
                                 to="/ajustes"
                                 className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/ajustes")
-                                        ? "bg-[#196DFF] text-white"
-                                        : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
+                                    ? "bg-[#196DFF] text-white"
+                                    : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}
                             >
                                 <IoSettingsSharp

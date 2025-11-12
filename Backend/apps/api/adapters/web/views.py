@@ -1,6 +1,5 @@
 import json
 from ...core import services
-from datetime import timedelta
 from ...models import User, Video
 from django.http import JsonResponse
 from ...utils import http_utils, text_utils
@@ -62,7 +61,7 @@ def upload_video(request):
     if request.method == "POST":
         data = json.loads(request.body)
         vid = Video.objects.create(
-            title=data["title"],
+            title= data["title"],
             origin_video=data["origin_video"],
             duration=data["duration"],
             language=data["language"],

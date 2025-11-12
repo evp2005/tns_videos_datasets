@@ -59,7 +59,7 @@ function LoginRegisterPage() {
                                     <span className="text-[0.875rem] text-gray-700 leading-relaxed"> Mantener sesion iniciada</span>
                                 </div>
                                 <div className="mt-[0.5rem]">
-                                    <button className="w-80 2xl:w-96 h-[3rem] rounded-lg border-none text-white bg-[#367AFF] text-[1rem] font-medium cursor-pointer transition-all duration-300 shadow-[0_0.125rem_0.5rem_rgba(54,122,255,0.3)] hover:bg-[#2563EB] hover:shadow-[0_0.25rem_0.75rem_rgba(54,122,255,0.4)] hover:-translate-y-[0.0625rem] active:translate-y-0 mt-[1.25rem]" type="submit">Ingresar</button>
+                                    <button className="w-80 2xl:w-96  h-[3rem] rounded-lg border-none text-white bg-[#367AFF] text-[1rem] font-medium cursor-pointer transition-all duration-300 shadow-[0_0.125rem_0.5rem_rgba(54,122,255,0.3)] hover:bg-[#2563EB] hover:shadow-[0_0.25rem_0.75rem_rgba(54,122,255,0.4)] hover:-translate-y-[0.0625rem] active:translate-y-0 mt-[1.25rem]" type="submit">Ingresar</button>
                                 </div>
                             </div>
                         </div>
