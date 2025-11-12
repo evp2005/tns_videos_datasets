@@ -9,6 +9,7 @@ env.bak/
 .direnv/
 node_modules/
 agent\credenciales.json
+media/
 # ----------------------------------------------------------------
 # Archivos de Secretos y Configuración Local
 # ----------------------------------------------------------------

@@ -22,8 +22,19 @@ Hasta la fecha, se ha logrado lo siguiente:
 - **Backend:** Python 3.x, Django
 - **API:** Django REST Framework
 - **Base de Datos:** MySQL
+- **Procesamiento de Video/Audio:** `moviepy`, `openai-whisper`
 - **Web Scraping:** Selenium WebDriver (para interacción con navegadores).
 - **Manejo de CORS:** `django-cors-headers`.
+
+## 📋 Requisitos Previos
+
+Antes de configurar el proyecto, asegúrate de tener instalado lo siguiente en tu sistema:
+
+- **Python 3.x:** El lenguaje de programación principal.
+- **FFmpeg:** Una herramienta de línea de comandos esencial para el procesamiento de audio y video. Es utilizada por `moviepy` para extraer el audio de los videos y por `whisper` para procesar los archivos de audio.
+  - **En Windows:** Descárgalo desde el sitio oficial de FFmpeg y añade la carpeta `bin` a la variable de entorno PATH de tu sistema.
+  - **En macOS (con Homebrew):** `brew install ffmpeg`
+  - **En Linux (Debian/Ubuntu):** `sudo apt update && sudo apt install ffmpeg`
 
 ## ⚙️ Configuración y Ejecución (para desarrollo)
 
@@ -44,7 +55,7 @@ Para poner en marcha el proyecto localmente:
     ```bash
     pip install -r requirements.txt # (Asumiendo que existe un requirements.txt)
     # Si no existe, instalar manualmente:
-    # pip install Django djangorestframework mysqlclient django-cors-headers
+    # pip install Django djangorestframework mysqlclient django-cors-headers selenium yt-dlp youtube-transcript-api moviepy openai-whisper
     ```
 4.  **Configurar la base de datos:** Asegúrate de que tu servidor MySQL esté corriendo y que la base de datos `tcp_videos` exista, o créala.
 5.  **Realizar migraciones:**
@@ -113,6 +124,55 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 
 - `POST /apps/api/get-youtube-transcript-plain-text`: Obtiene la transcripción como texto plano.
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
+
+### Transcripción de Archivos Locales
+
+- `POST /apps/api/transcribe-video-file/<video_id>/`: Inicia el proceso de transcripción para un video local ya subido.
+  - **URL Param:** `video_id` (el ID del video en la base de datos).
+  - **Descripción:** Extrae el audio del archivo de video, lo transcribe usando OpenAI Whisper y guarda el resultado en la base de datos. Este es un proceso que puede tardar varios minutos.
+
+## 🧪 Cómo Probar la Transcripción Local
+
+Para probar el endpoint de transcripción de archivos locales, necesitas tener un registro de video en la base de datos que apunte a un archivo físico. Sigue estos pasos:
+
+1.  **Coloca un video de prueba:**
+
+    - Crea la carpeta `media/video/` dentro del directorio `backend/`.
+    - Copia un archivo de video (ej. `test_video.mp4`) dentro de `backend/media/video/`.
+
+2.  **Crea los registros en la BD con la Django Shell:**
+
+    - Abre la shell de Django:
+      ```bash
+      python manage.py shell
+      ```
+    - Ejecuta el siguiente script para crear un usuario de prueba y un registro de video asociado a tu archivo.
+
+      ```python
+      from apps.api.models import User, Video
+      from django.contrib.auth.hashers import make_password
+
+      # Crear un usuario de prueba si no existe
+      user, created = User.objects.get_or_create(
+          username="testuser",
+          defaults={'email': 'test@example.com', 'password': make_password('password123')}
+      )
+
+      # Crear el registro del video apuntando al archivo local
+      video = Video.objects.create(title="Mi Video de Prueba", video_path="video/test_video.mp4", origin_video="local", user=user)
+      print(f"Video creado con éxito. Su ID es: {video.id}")
+      ```
+
+    - Ten en cuenta el nombre del archivo al crearlo aqui: `video_path="video/test_video.mp4"`
+    - Anota el ID del video que se imprime en la consola.
+
+3.  **Ejecuta la petición:**
+    - Usa una herramienta como Postman, Insomnia o `curl` para hacer una petición `POST` al endpoint, reemplazando `<video_id>` con el ID que obtuviste.
+      ```bash
+      # Ejemplo con curl
+      curl -X POST http://127.0.0.1:8000/apps/api/transcribe-video-file/1/
+      ```
+    - La transcripción puede tardar varios minutos. Una vez finalizada, puedes verificar el resultado en la tabla `api_transcription` de tu base de datos.
 
 ## ➡️ Próximos Pasos
 
