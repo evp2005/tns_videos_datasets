@@ -1,34 +1,28 @@
 import { createContext, useState, useEffect } from "react";
-import { loginUser } from "../services/authService";
 
 export const LoginContext = createContext();
 
 export const LoginProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    // verificar si hay usuario guardado
+    // al montar, revisa si hay token en sessionStorage
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) setUser(JSON.parse(storedUser));
-        setLoading(false);
+        const token = sessionStorage.getItem("token");
+        if (token) setUser(token);
     }, []);
 
-    // función de login global
-    const login = async (email, password) => {
-        const data = await loginUser(email, password);
-        setUser(data.user || data); // depende de cómo devuelva el backend
-        localStorage.setItem("user", JSON.stringify(data.user || data));
-        return data;
+    const login = (token) => {
+        sessionStorage.setItem("token", token); // guarda en sessionStorage
+        setUser(token); // actualiza el estado React
     };
 
     const logout = () => {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
         setUser(null);
     };
 
     return (
-        <LoginContext.Provider value={{ user, loading, login, logout }}>
+        <LoginContext.Provider value={{ user, login, logout }}>
             {children}
         </LoginContext.Provider>
     );

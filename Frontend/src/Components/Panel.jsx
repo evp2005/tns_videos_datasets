@@ -31,14 +31,14 @@ function Panel() {
             </div>
 
             {/* Información del usuario */}
-            <div className="flex justify-center items-center w-full gap-4 border-b-2 border-[#F2F3F2] mb-6 pb-4">
-                <img className="w-8 h-8 rounded-full object-cover" src={User} alt="Usuario" />
+            <div className="flex justify-center items-center w-full gap-5 border-b-2 border-[#F2F3F2] mb-6 pb-4">
+                <img className="w-7 h-7 rounded-full object-cover" src={User} alt="Usuario" />
                 <div className="flex flex-col items-center">
                     <h4 className="font-bold text-gray-900 text-sm">Administración</h4>
-                    <span className="text-sm text-[#6B7284]">Admin</span>
+                    <span className="text-xs text-[#6B7284] ">Admin</span>
                 </div>
                 <GiExitDoor onClick={logout}
-                    className="text-5xl cursor-pointer text-[#196DFF]" />
+                    className="text-4xl cursor-pointer text-[#196DFF]" />
 
             </div>
 
@@ -50,8 +50,8 @@ function Panel() {
                     <ul className="space-y-1">
                         <li>
                             <Link
-                                to="/Inicio"
-                                className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/Inicio")
+                                to="/inicio"
+                                className={`flex items-center h-11 gap-3 px-3 rounded-lg transition-colors duration-200 ${isActive("/inicio")
                                     ? "bg-[#196DFF] text-white"
                                     : "text-[#787373] hover:bg-[#2563EB] hover:text-white"
                                     }`}

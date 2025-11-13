@@ -1,7 +1,8 @@
 import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
-    const user = sessionStorage.getItem("token"); // 👈 ahora usa sessionStorage
+    // 👀 Revisamos ambos storage
+    const user = sessionStorage.getItem("token") || localStorage.getItem("token");
 
     if (!user) {
         console.log("⚠️ Debes iniciar sesión para acceder a esta página");

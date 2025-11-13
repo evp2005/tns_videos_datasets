@@ -1,5 +1,4 @@
 // @ts-nocheck
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../features/login/pages/LoginPage.jsx";
 import LoginRegisterPage from "../features/loginRegister/pages/LoginRegisterPage.jsx";
@@ -10,6 +9,8 @@ import SegmentacionPage from "../features/segmentacion/pages/SegmentacionPage.js
 import ExportesPage from "../features/exportes/pages/ExportesPage.jsx";
 import DoblajePage from "../features/Doblaje/pages/DoblajePage.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx"; // 🔒 importa el protector
+import AjustePage from "../features/Ajustes/pages/AjustePage.jsx";
+import LotesPage from "../features/Lotes/Page/LotesPage.jsx";
 
 function AppRouter() {
     return (
@@ -69,6 +70,24 @@ function AppRouter() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/lotes"
+                    element={
+                        <ProtectedRoute>
+                            <LotesPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/ajustes"
+                    element={
+                        <ProtectedRoute>
+                            <AjustePage />
+                        </ProtectedRoute>
+                    }
+                />
+
+
 
                 {/* 🧭 Redirección por defecto */}
                 <Route path="*" element={<Navigate to="/inicio" replace />} />
