@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import re
 from infrastructure.models import Video
+from utils.text_utils import get_youtube_video_id
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,12 +28,8 @@ class YTSerializer(serializers.Serializer):
     url = serializers.URLField()
 
     def validate_url(self, value):
-        pattern_long = r"^https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(?:&.*)?$"
-        pattern_short = r"^https:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})(?:\?.*)?$"
-
-        if re.fullmatch(pattern_long, value) or re.fullmatch(pattern_short, value):
+        if get_youtube_video_id(value):
             return value
-
         raise serializers.ValidationError("La 'url' no es una URL de Youtube válida.")
     
 class AudioSaveSerializer(serializers.Serializer):

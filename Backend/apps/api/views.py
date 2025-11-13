@@ -1,24 +1,21 @@
 import json
 from core import services
-from infrastructure.models import User, Video, Transcription
 from django.http import JsonResponse
 from utils import http_utils, text_utils
-from rest_framework import viewsets, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from moviepy import VideoFileClip
 from core.services import VideoProcessingError, AuthenticationError, UserCreationError
 from django.views.decorators.csrf import csrf_exempt
 from infrastructure.storage.local_file_storage import LocalAudioStorage
 from infrastructure.scraping.selenium_video_scraper import SeleniumVideoScraper
+from infrastructure.web.http_client import HTTPContentFetcher
+from infrastructure.web.youtube import YouTubeTranscriptService
 from infrastructure.storage.django_repositories import DjangoUserRepository, DjangoVideoRepository, DjangoTranscriptionRepository
 from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextTrackSerializer, VTTContentSerializer, YTSerializer
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebVTTFormatter, SRTFormatter
 from utils.text_utils import get_youtube_video_id, flatten_text_yt
-import datetime
-import yt_dlp 
 from django.conf import settings
-from moviepy import VideoFileClip
 import whisper
 import os
 
@@ -27,7 +24,6 @@ import os
 def get_users(request):
     user_repo = DjangoUserRepository()
     users = services.get_all_users(user_repo)
-    # Serializar los objetos User a un formato JSON
     serialized_users = [{"id": user.id, "username": user.username, "email": user.email, "rol": user.rol} for user in users]
     return JsonResponse(serialized_users, safe=False)
 
@@ -60,11 +56,6 @@ def login_user(request):
         except AuthenticationError as e: # Capturar excepciones de autenticación
             return JsonResponse({"error": str(e)}, status=401) # Devolver error 401
     return JsonResponse({"error": "Método no permitido"}, status=405)
-
-# Endpoint para obtener todos los videos
-def get_users(request):
-    users = User.objects.all().values()
-    return JsonResponse(list(users), safe=False)
 
 # Endpoint para subir un video
 @csrf_exempt
@@ -158,20 +149,14 @@ def get_m3u8_url(request):
     scraper = SeleniumVideoScraper()
 
     try:
-        # La lógica de scraping ahora está en el adaptador, que es llamado por el servicio.
-        # Para simplificar, llamaremos directamente al método del adaptador aquí.
-        # Idealmente, habría un servicio `get_m3u8_url_from_page`.
-        m3u8_url = scraper.get_m3u8_url(url)
-        if m3u8_url is None:
-            raise VideoProcessingError("No se pudo extraer la URL m3u8 de la página")
-        
+        m3u8_url = services.get_m3u8_url_from_page(url, scraper)
         return Response({
             "status": "success",
             "result": m3u8_url
         })
     except (VideoProcessingError, Exception) as e:
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 @api_view(['POST'])
 def save_audio_using_m3u8_url(request):
     """
@@ -187,16 +172,13 @@ def save_audio_using_m3u8_url(request):
 
     data = serializer.validated_data
     
-    # Instanciamos los adaptadores necesarios
     storage = LocalAudioStorage()
-    # Este caso de uso no necesita scraping, solo el almacenamiento
 
     try:
-        # Llamamos directamente al método del adaptador (o a un servicio que lo use)
-        file_name = storage.save_audio_from_m3u8(data["url"], data["file_name"])
+        saved_file = services.save_audio_from_url(data["url"], data["file_name"], storage)
         return Response({
             "status": "success",
-            "result": file_name
+            "result": saved_file
         })
     except Exception as e:
         return Response({
@@ -218,18 +200,16 @@ def get_vtt_content(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     url = serializer.validated_data['url']
-    raw_content = http_utils.get_raw_content(url) 
+    fetcher = HTTPContentFetcher()
 
-    if raw_content is None:
+    try:
+        raw_content = services.get_raw_content_from_url(url, fetcher)
         return Response({
-          "status": "error",
-          "message": "Ocurrió una excepción ambigua al manejar la solicitud"
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    return Response({
-        "status": "success",
-        "result": raw_content
-    })
+            "status": "success",
+            "result": raw_content
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=500)
 
 @api_view(['POST'])
 def vtt_to_plain_text(request):
@@ -245,7 +225,9 @@ def vtt_to_plain_text(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     vtt_content = serializer.validated_data['value']
-    plain_value = text_utils.flatten_text(vtt_content) 
+    # Esta lógica es tan simple que puede permanecer aquí o en un servicio simple.
+    # Por consistencia, la movemos a un `util` del core si se reutiliza.
+    plain_value = text_utils.flatten_text(vtt_content)
 
     return Response({
         "status": "success",
@@ -294,18 +276,16 @@ def get_youtube_transcript_json(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
-        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
-        transcript_for = JSONFormatter().format_transcript(transcript)
-        
+        youtube_service = YouTubeTranscriptService()
+        transcript_json = services.get_youtube_transcript(video_id, 'json', youtube_service)
         return Response({
             "status": "success",
-            "result": transcript_for
+            "result": json.loads(transcript_json) # Convertir la cadena JSON a un objeto JSON
         })
     except Exception as e:
         return Response({
             "status": "error",
-            "message": f"No se pudo obtener la transcripción: {str(e)}"
+            "message": f"No se pudo obtener la transcripción en JSON: {str(e)}"
         }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
 
 @api_view(['POST'])
@@ -330,18 +310,16 @@ def get_youtube_transcript_vtt(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
-        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
-        transcript_for = WebVTTFormatter().format_transcript(transcript)
-        
+        youtube_service = YouTubeTranscriptService()
+        transcript_vtt = services.get_youtube_transcript(video_id, 'vtt', youtube_service)
         return Response({
             "status": "success",
-            "result": transcript_for
+            "result": transcript_vtt
         })
     except Exception as e:
         return Response({
             "status": "error",
-            "message": f"No se pudo obtener la transcripción: {str(e)}"
+            "message": f"No se pudo obtener la transcripción en VTT: {str(e)}"
         }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
 
 @api_view(['POST'])
@@ -366,18 +344,16 @@ def get_youtube_transcript_srt(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
-        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
-        transcript_for = SRTFormatter().format_transcript(transcript)
-        
+        youtube_service = YouTubeTranscriptService()
+        transcript_srt = services.get_youtube_transcript(video_id, 'srt', youtube_service)
         return Response({
             "status": "success",
-            "result": transcript_for
+            "result": transcript_srt
         })
     except Exception as e:
         return Response({
             "status": "error",
-            "message": f"No se pudo obtener la transcripción: {str(e)}"
+            "message": f"No se pudo obtener la transcripción en SRT: {str(e)}"
         }, status=status.HTTP_404_NOT_FOUND) 
     
 @api_view(['POST'])
@@ -402,19 +378,16 @@ def get_youtube_transcript_plain_text(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Obtiene la transcripción. Puedes especificar idiomas, ej: ['es', 'en']
-        transcript = YouTubeTranscriptApi().fetch(video_id, languages=['es', 'en'])
-        transcript_for = TextFormatter().format_transcript(transcript)
-        transcript_to_plain_text = flatten_text_yt(transcript_for)
-        
+        youtube_service = YouTubeTranscriptService()
+        transcript_text = services.get_youtube_transcript(video_id, 'text', youtube_service)
         return Response({
             "status": "success",
-            "result": transcript_to_plain_text
+            "result": transcript_text
         })
     except Exception as e:
         return Response({
             "status": "error",
-            "message": f"No se pudo obtener la transcripción: {str(e)}"
+            "message": f"No se pudo obtener la transcripción en texto plano: {str(e)}"
         }, status=status.HTTP_404_NOT_FOUND) # 404 es común si no hay subtítulos
     
 @csrf_exempt
@@ -434,32 +407,14 @@ def get_youtube_video_details(request):
     url = serializer.validated_data['url']
 
     try:
-        # Opciones para yt-dlp: solo queremos la metadata, no descargar
-        ydl_opts = {
-            'quiet': True,
-            'skip_download': True,
-            'force_generic_extractor': True
-        }
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Extraemos la información
-            info = ydl.extract_info(url, download=False) 
-            
-            title = info.get('title', None)
-            total_seconds = info.get('duration', 0)
-            duration_string = str(datetime.timedelta(seconds=total_seconds))
-        
+        youtube_service = YouTubeTranscriptService()
+        details = services.get_youtube_details(url, youtube_service)
         return Response({
             "status": "success",
-            "result": {
-                "title": title,
-                "duration_seconds": total_seconds,
-                "duration_string": duration_string
-            }
+            "result": details
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        # Si yt-dlp falla, también lo capturamos
         return Response({
             "status": "error",
             "message": f"Ocurrió un error al procesar la URL con yt-dlp: {str(e)}"
