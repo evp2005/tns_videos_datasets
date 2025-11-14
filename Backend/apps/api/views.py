@@ -5,6 +5,7 @@ from utils import http_utils, text_utils
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from extractor import YouTubeThumbnailExtractor
 from moviepy import VideoFileClip
 from core.services import VideoProcessingError, AuthenticationError, UserCreationError
 from django.views.decorators.csrf import csrf_exempt
@@ -14,7 +15,7 @@ from infrastructure.web.http_client import HTTPContentFetcher
 from infrastructure.web.youtube import YouTubeTranscriptService
 from infrastructure.storage.django_repositories import DjangoUserRepository, DjangoVideoRepository, DjangoTranscriptionRepository
 from .serializers import EscuelaITURLSerializer, AudioSaveSerializer, VimeoTextTrackSerializer, VTTContentSerializer, YTSerializer
-from utils.text_utils import get_youtube_video_id, flatten_text_yt
+from utils.text_utils import get_youtube_video_id
 from django.conf import settings
 import whisper
 import os
@@ -392,6 +393,37 @@ def get_youtube_transcript_plain_text(request):
     
 @csrf_exempt
 @api_view(['POST'])
+def get_youtube_thumbnail(request):
+    """
+    Obtiene los metadatos de un video de YouTube, incluyendo la duración.
+    (Versión robusta usando yt-dlp)
+    """
+    serializer = YTSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response({
+            "status": "error",
+            "message": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    url = serializer.validated_data['url']
+
+    try:
+        extractor = YouTubeThumbnailExtractor()
+        thumbnail = extractor.extract_thumbnail(url)
+        return Response({
+            "status": "success",
+            "result": {thumbnail.url}
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"Ocurrió un error al extraer la miniatura: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@csrf_exempt
+@api_view(['POST'])
 def get_youtube_video_details(request):
     """
     Obtiene los metadatos de un video de YouTube, incluyendo la duración.
@@ -422,7 +454,6 @@ def get_youtube_video_details(request):
     
 
 # Video o archivo local
-
 def _extract_audio_from_video(video_path: str, audio_output_path: str):
     try:
         video_clip = VideoFileClip(video_path)

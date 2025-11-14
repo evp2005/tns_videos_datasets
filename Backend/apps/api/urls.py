@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 
 urlpatterns = [
+    # https://pypi.org/project/extract-youtube/
     path('users/get_users', views.get_users),
     path('users/create_user', views.create_user),
     path('users/login_user', views.login_user),
@@ -24,6 +25,7 @@ urlpatterns = [
     path('get-youtube-transcript-plain-text', views. get_youtube_transcript_plain_text, name='get_youtube_transcript-plain_text'),
     path('get-youtube-transcript-srt', views. get_youtube_transcript_srt, name='get_youtube_transcript_srt'),
     path('get-youtube-video-details', views. get_youtube_video_details, name='get_youtube_video_details'),
+    path('get-youtube-thumbnail', views.get_youtube_thumbnail, name='get_youtube_thumbnail'),
     
     path('transcribe-video-file/<int:video_id>/', views.transcribe_video_file, name='transcribe_video_file'),
 ]
