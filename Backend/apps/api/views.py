@@ -395,8 +395,7 @@ def get_youtube_transcript_plain_text(request):
 @api_view(['POST'])
 def get_youtube_thumbnail(request):
     """
-    Obtiene los metadatos de un video de YouTube, incluyendo la duración.
-    (Versión robusta usando yt-dlp)
+    Obtiene la miniatura de un video de YouTube.
     """
     serializer = YTSerializer(data=request.data)
 
