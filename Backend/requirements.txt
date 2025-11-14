@@ -13,3 +13,7 @@ langchain-google-vertexai
 python-dotenv
 google-cloud-aiplatform
 youtube-transcript-api
+yt-dlp
+moviepy
+openai-whisper
+extract-youtube

@@ -29,8 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'apps.api',
-    'apps.agent',
+    'apps.api.apps.ApiAppConfig', 
+    'infrastructure.apps.InfrastructureConfig', 
 ]
 
 MIDDLEWARE = [
@@ -74,7 +74,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tcp_videos',
         'USER': 'root',
-        'PASSWORD': '123456789IO',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT':'3306',
         'OPTIONS': {

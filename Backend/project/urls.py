@@ -10,5 +10,5 @@ urlpatterns = [
     
     #path('apps/agent/', include('apps.agent.urls')),
 ]
-if settings.DEBUG:  # para servir archivos en desarrollo
+if settings.DEBUG: 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

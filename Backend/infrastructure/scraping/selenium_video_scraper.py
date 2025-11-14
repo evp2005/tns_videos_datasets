@@ -1,5 +1,5 @@
-from apps.api.core.ports.video_scraper import VideoScraper
-from apps.api.utils import selenium_utils # Puedes seguir usando tus utils aquí
+from core.ports.video_scraper import VideoScraper
+from utils import selenium_utils 
 
 class SeleniumVideoScraper(VideoScraper):
     def get_texttrack_url(self, url: str) -> str | None:
