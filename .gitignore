@@ -32,6 +32,7 @@ db.sqlite3
 # Archivos de credenciales y llaves
 **/credenciales.json
 **/credentials.json
+**/gcp-credentials.json
 **/secrets.json
 **/secret.json
 
