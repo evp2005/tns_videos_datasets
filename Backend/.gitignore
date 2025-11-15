@@ -16,7 +16,7 @@ media/
 # Ignora archivos de variables de entorno
 .env*
 *.env
-credentials.json
+gcp-credentials.json
 
 # Ignora configuraciones locales de Django
 local_settings.py
