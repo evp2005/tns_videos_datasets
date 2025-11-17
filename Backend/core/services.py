@@ -6,6 +6,23 @@ from .ports.youtube_service import YouTubeService
 from typing import Optional
 import os
 from .domain.models import User, Video, Transcription
+
+
+
+#NUEVAS LINEAS PARA DOBLAJE
+import os
+import uuid
+import tempfile
+import shutil
+from typing import Tuple, Dict, Any
+from pydub import AudioSegment
+
+from infrastructure.dubbing.audio.whisper_adapter import WhisperAudioAdapter
+from infrastructure.dubbing.translation.google_translate_adapter import GoogleTranslateAdapter
+from infrastructure.dubbing.tts.edge_tts_adapter import EdgeTTSAdapter
+
+
+
 class VideoProcessingError(Exception):
     pass
 
@@ -125,3 +142,198 @@ def get_youtube_transcript(video_id: str, format: str, youtube_service: YouTubeS
 def get_youtube_details(url: str, youtube_service: YouTubeService) -> dict:
     """Caso de uso: Obtener detalles de un video de YouTube."""
     return youtube_service.get_video_details(url)
+
+
+
+
+
+
+# DOBLAJE HFJKHSDJFHJKEHFHSEDHFS
+class DubbingService:
+    def __init__(self):
+        self.audio_processor = WhisperAudioAdapter()
+        self.translator = GoogleTranslateAdapter()
+        self.voice_synthesizer = EdgeTTSAdapter()
+        self.upload_dir = "uploads"
+        self.output_dir = "outputs"
+        self._ensure_directories()
+    
+    def _ensure_directories(self):
+        """Asegurar que los directorios existan"""
+        os.makedirs(self.upload_dir, exist_ok=True)
+        os.makedirs(self.output_dir, exist_ok=True)
+    
+    def is_dubbing_available(self) -> bool:
+        """Verificar si el doblaje está disponible"""
+        return self.audio_processor.is_available()
+    
+    def is_whisper_loaded(self) -> bool:
+        """Verificar si Whisper está cargado"""
+        return self.audio_processor.is_whisper_loaded()
+    
+    def get_output_path(self, filename: str) -> str:
+        """Obtener ruta de archivo de salida"""
+        return os.path.join(self.output_dir, filename)
+    
+    def process_dubbing(self, file_data: bytes, filename: str, source_lang: str, 
+                       target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
+        """Procesar doblaje completo - Adaptado de tu código original"""
+        try:
+            # Guardar archivo temporalmente
+            video_id = str(uuid.uuid4())
+            file_extension = os.path.splitext(filename)[1] or ".mp4"
+            unique_filename = f"{video_id}{file_extension}"
+            file_path = os.path.join(self.upload_dir, unique_filename)
+            
+            with open(file_path, 'wb') as f:
+                f.write(file_data)
+            
+            # Procesar doblaje
+            output_filename = f"dubbed_precise_{unique_filename}"
+            output_path = os.path.join(self.output_dir, output_filename)
+            
+            success, result_info = self._process_dubbing_precise(
+                file_path, output_path, source_lang, target_lang, use_edge_tts
+            )
+            
+            if success:
+                result_info["output_filename"] = output_filename
+            
+            return success, result_info
+            
+        except Exception as e:
+            return False, {"error": str(e)}
+    
+    def _process_dubbing_precise(self, input_path: str, output_path: str, source_lang: str, 
+                               target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
+        """Doblaje preciso con segmentación temporal exacta - Tu código adaptado"""
+        try:
+            print("🎯 Iniciando doblaje preciso...")
+            temp_dir = tempfile.mkdtemp()
+            
+            try:
+                # 1. Extraer audio del video usando FFmpeg
+                print("🔊 Extrayendo audio...")
+                audio_path = os.path.join(temp_dir, "audio_original.wav")
+                if not self.audio_processor.extract_audio(input_path, audio_path):
+                    return False, {"error": "Error extrayendo audio"}
+                
+                # 2. Transcripción precisa con Whisper (con timestamps)
+                print("📝 Transcribiendo con Whisper...")
+                segments = self.audio_processor.transcribe_audio(audio_path, source_lang)
+                
+                if not segments:
+                    return False, {"error": "No se pudo transcribir el audio"}
+                
+                print(f"✅ Transcritos {len(segments)} segmentos")
+                
+                # 3. Procesar cada segmento con timing exacto
+                print("🔄 Procesando segmentos...")
+                segmentos_procesados = []
+                
+                for i, segment in enumerate(segments):
+                    if i % 5 == 0:  # Log cada 5 segmentos para no saturar
+                        print(f"   Segmento {i+1}/{len(segments)}...")
+                    
+                    # Traducir texto
+                    texto_traducido = self.translator.translate_text(
+                        segment['text'], source_lang, target_lang
+                    )
+                    
+                    if texto_traducido and len(texto_traducido.strip()) > 0:
+                        # Generar audio doblado
+                        audio_segment_path = os.path.join(temp_dir, f"segment_{i}.mp3")
+                        
+                        success = self.voice_synthesizer.synthesize_speech(
+                            texto_traducido, audio_segment_path, target_lang, use_edge_tts
+                        )
+                        
+                        if success:
+                            segmentos_procesados.append({
+                                'start': segment['start'],
+                                'end': segment['end'],
+                                'audio_path': audio_segment_path,
+                                'text_original': segment['text'],
+                                'text_translated': texto_traducido
+                            })
+                
+                print(f"🎙️  Procesados {len(segmentos_procesados)} segmentos para doblaje")
+                
+                if not segmentos_procesados:
+                    return False, {"error": "No se pudo procesar ningún segmento de audio"}
+                
+                # 4. Crear pista de audio doblada con timing exacto
+                print("🔊 Construyendo pista de audio doblada...")
+                audio_doblado_path = os.path.join(temp_dir, "audio_doblado.wav")
+                if not self._construir_audio_doblado(segmentos_procesados, audio_doblado_path, 
+                                                   self._obtener_duracion_audio(audio_path)):
+                    return False, {"error": "Error construyendo audio doblado"}
+                
+                # 5. Reemplazar audio en video usando FFmpeg
+                print("🎬 Reemplazando audio en video...")
+                if self.audio_processor.mix_audio_tracks(input_path, audio_doblado_path, output_path):
+                    return True, {
+                        "transcribed_segments": len(segments),
+                        "translated_segments": len(segmentos_procesados),
+                        "total_duration": self._obtener_duracion_audio(audio_path)
+                    }
+                else:
+                    return False, {"error": "Error reemplazando audio"}
+                    
+            finally:
+                # Limpiar directorio temporal
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                        
+        except Exception as e:
+            print(f"❌ Error en doblaje preciso: {e}")
+            import traceback
+            traceback.print_exc()
+            return False, {"error": str(e)}
+    
+    def _construir_audio_doblado(self, segmentos, output_path, duracion_total):
+        """Construir pista de audio doblada con timing exacto - Tu código original"""
+        try:
+            # Crear pista de silencio del mismo length que el original
+            pista_final = AudioSegment.silent(duration=int(duracion_total * 1000))  # ms
+            
+            for segmento in segmentos:
+                try:
+                    # Verificar que el archivo de audio existe
+                    if not os.path.exists(segmento['audio_path']):
+                        print(f"⚠️  Archivo de audio no encontrado: {segmento['audio_path']}")
+                        continue
+                    
+                    # Cargar audio doblado
+                    audio_doblado = AudioSegment.from_file(segmento['audio_path'])
+                    
+                    # Calcular posición en milisegundos
+                    start_ms = int(segmento['start'] * 1000)
+                    
+                    # Asegurar que no nos salgamos de los límites
+                    if start_ms + len(audio_doblado) > len(pista_final):
+                        # Recortar audio si es muy largo
+                        audio_doblado = audio_doblado[:len(pista_final) - start_ms]
+                    
+                    # Superponer audio doblado en la posición correcta
+                    pista_final = pista_final.overlay(audio_doblado, position=start_ms)
+                    
+                except Exception as e:
+                    print(f"⚠️  Error procesando segmento: {e}")
+                    continue
+            
+            # Exportar audio final
+            pista_final.export(output_path, format="wav")
+            return os.path.exists(output_path)
+            
+        except Exception as e:
+            print(f"❌ Error construyendo audio doblado: {e}")
+            return False
+    
+    def _obtener_duracion_audio(self, audio_path):
+        """Obtener duración del audio - Tu código original"""
+        try:
+            audio = AudioSegment.from_file(audio_path)
+            return len(audio) / 1000.0  # Convertir a segundos
+        except Exception as e:
+            print(f"⚠️  Error obteniendo duración: {e}")
+            return 0

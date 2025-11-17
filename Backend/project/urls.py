@@ -9,6 +9,8 @@ urlpatterns = [
     path('api/', include('apps.api.urls')),
 
     path('agent/', include('apps.agent.urls')),
+
+    path('api/dubbing/', include('apps.dubbing.urls')),
 ]
 if settings.DEBUG: 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
