@@ -30,29 +30,20 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'apps.api',
-    'apps.agent',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # ← MOVIDO AQUÍ (antes de CommonMiddleware)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
-# ❌ ELIMINA ESTA LÍNEA - Es la causa del error
-# CORS_ALLOW_ALL_ORIGINS = True
-
-# ✅ USA SOLO ESTAS CONFIGURACIONES
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-CORS_ALLOW_CREDENTIALS = True  # ← AGREGA ESTA LÍNEA
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'project.urls'
 
