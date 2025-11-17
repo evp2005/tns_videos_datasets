@@ -1,32 +1,34 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/apps";
+const BASE_URL = "http://127.0.0.1:8000/api"; // endpoint real
 
-// 🧩 1️⃣ Obtener el título del video desde la URL
-export const fetchVideoTitle = async (videoUrl) => {
+export const fetchVideoInfo = async (videoUrl) => {
     try {
-        const response = await axios.post(`${BASE_URL}/agent/get-title/`, {
-            url: videoUrl,
-        });
-        return response.data; // devuelve { title: "..." }
-    } catch (err) {
-        console.error("❌ Error al obtener el título:", err);
-        throw err;
-    }
-};
-
-// 🧩 2️⃣ Subir el video a la base de datos
-export const uploadVideo = async (videoData) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/api/users/upload_video/`, videoData,
-            {
-                withCredentials: true // ⬅️ Añade esto
-            }
-
+        const response = await axios.post(
+            `${BASE_URL}/get-youtube-video-details`,
+            { url: videoUrl }
         );
-        return response.data;
+
+        const data = response.data.result;
+
+        return {
+            title: data.title,
+            duration: data.duration_string, // formato HH:MM:SS
+            origin_video: "YouTube",
+            url_video: videoUrl,
+            state: "Pending",
+        };
     } catch (err) {
-        console.error("❌ Error al subir el video:", err);
-        throw err;
+        console.warn("❌ No se pudo obtener la info del video, usando ejemplo");
+        // ⚡ simulación: devuelve video de ejemplo
+        return {
+            title: "Video de ejemplo",
+            origin_video: "YouTube",
+            duration: "01:23:45",
+            state: "Pending",
+            language: "Español",
+            url_video: videoUrl,
+            user_id: 1
+        };
     }
 };

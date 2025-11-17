@@ -7,3 +7,13 @@ selenium
 faster-whisper
 ffmpeg-python
 flask
+langchain-community
+beautifulsoup4
+langchain-google-vertexai
+python-dotenv
+google-cloud-aiplatform
+youtube-transcript-api
+yt-dlp
+moviepy
+openai-whisper
+extract-youtube
