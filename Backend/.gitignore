@@ -8,13 +8,15 @@ ENV/
 env.bak/
 .direnv/
 node_modules/
-
+agent\credenciales.json
+media/
 # ----------------------------------------------------------------
 # Archivos de Secretos y Configuración Local
 # ----------------------------------------------------------------
 # Ignora archivos de variables de entorno
 .env*
 *.env
+gcp-credentials.json
 
 # Ignora configuraciones locales de Django
 local_settings.py

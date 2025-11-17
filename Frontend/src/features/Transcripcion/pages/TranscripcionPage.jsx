@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Panel from '../../../Components/Panel'
 import Completado from '../../../Components/Estados/Completado';
 import { FaRegCheckCircle } from "react-icons/fa";
+import { Link } from 'react-router-dom'
 <FaRegCheckCircle className='text-5xl text-[#00CB07]' />
 function TranscripcionPage() {
     const [texto, setTexto] = useState("Selecciona un formato para ver la transcripción.");
@@ -181,21 +182,28 @@ Aprenderemos sobre useState y useEffect.`,
                                             <span className='text-sm text-[#AAC2CC]'>
                                                 Enviar material a otros módulos
                                             </span>
-                                            <a href="" className='bg-[#224DB3] text-white flex justify-center items-center rounded-md h-8 text-sm py-1'>
-                                                Enviar a traducción
-                                            </a>
+                                            <Link to="/doblaje" className='flex flex-col gap-3 px-5'>
+                                                < button className='bg-[#224DB3] text-white flex justify-center items-center rounded-md h-8 text-sm py-1'>
+                                                    Enviar a traducción
+                                                </button>
+
+                                            </Link>
                                             <span className='text-sm text-[#AAC2CC]'>
                                                 Enviar el video + transcripción para traducir y doblar
                                             </span>
                                         </div>
                                         <div className='flex flex-col gap-3 px-5 mb-5'>
-                                            <a href="" className='border-[#EEEFEF] border-2 rounded-lg flex justify-center h-8 text-sm font-semibold py-1'>
-                                                Enviar a segmentación
-                                            </a>
+                                            <Link to="/segmentación">
+                                                <button className='border-[#EEEFEF] border-2 rounded-lg flex justify-center items-center h-8 text-sm font-semibold py-1 w-full'>
+                                                    Enviar a segmentación
+                                                </button>
+                                            </Link>
+
                                             <span className='text-sm text-[#AAC2CC]'>
                                                 Enviar el video + transcripción para dividir en clips temáticos
                                             </span>
                                         </div>
+
                                     </div>
                                 </div>
 

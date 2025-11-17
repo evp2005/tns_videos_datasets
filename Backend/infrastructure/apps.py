@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
-class AgenteConfig(AppConfig):
+class InfrastructureConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.agent'
+    name = 'infrastructure'

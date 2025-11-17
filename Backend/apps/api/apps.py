@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ApiConfig(AppConfig):
+class ApiAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.api'
+    name = 'apps.api' # El path físico sigue siendo apps.api

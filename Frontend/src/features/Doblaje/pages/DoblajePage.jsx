@@ -4,7 +4,7 @@ import Panel from '../../../Components/Panel'
 import { FaArrowLeft, FaYoutube, FaPlay, FaPause, FaDownload, FaVolumeUp, FaCheck } from "react-icons/fa";
 import { LuSparkles } from "react-icons/lu";
 import { Select, Table, Progress, Slider, Checkbox } from 'antd';
-
+import { Link } from 'react-router-dom';
 
 function DoblajePage() {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -187,10 +187,13 @@ function DoblajePage() {
                                         <h2 className='text-xl font-semibold text-gray-900 mb-2'>Material a Segmentar</h2>
                                         <p className='text-gray-600'>Video y Transcripción recibidos desde Transcripción</p>
                                     </div>
-                                    <button className='flex items-center gap-3 px-5 py-1 border-2 border-[#EEEFEF] bg-[#FAFAF7] text-[#333333] hover:bg-[#f0f0f0] rounded-lg transition-colors text-sm font-medium'>
-                                        <FaArrowLeft className='text-sm' />
-                                        Volver a Transcripción
-                                    </button>
+                                    <Link to={'/transcripcion'}>
+                                        <button className='flex items-center gap-3 px-5 py-1 border-2 border-[#EEEFEF] bg-[#FAFAF7] text-[#333333] hover:bg-[#f0f0f0] rounded-lg transition-colors text-sm font-medium'>
+                                            <FaArrowLeft className='text-sm' />
+                                            Volver a Transcripción
+                                        </button>
+
+                                    </Link>
                                 </div>
 
                                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-start'>

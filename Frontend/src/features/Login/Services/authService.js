@@ -3,7 +3,7 @@ import axios from "axios";
 export const loginUser = async (email, password) => {
     try {
         const response = await axios.post(
-            "http://127.0.0.1:8000/apps/api/users/login_user", // ✅ URL correcta
+            "http://127.0.0.1:8000/api/users/login_user",
             { email, password },
             { withCredentials: true }
         );
