@@ -28,7 +28,10 @@ def flatten_text_yt(input: str) -> str:
 
 def flatten_text(vtt_content: str) -> str:
     """Limpia un contenido VTT, eliminando timestamps y metadatos."""
+    # Elimina el encabezado WEBVTT
     content = re.sub(r'WEBVTT\s*', '', vtt_content)
+    # Elimina las líneas de tiempo y los números de secuencia
     content = re.sub(r'\d+\n\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}.*\n', '', content)
+    # Reemplaza múltiples saltos de línea con un solo espacio
     content = re.sub(r'\n+', ' ', content)
     return content.strip()

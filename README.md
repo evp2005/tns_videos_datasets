@@ -72,73 +72,62 @@ A continuación se detallan los endpoints implementados en la aplicación `api`.
 
 ### Gestión de Usuarios
 
-- `GET /api/users/get_users`: Lista todos los usuarios registrados.
-- `POST /api/users/create_user`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
-- `POST /api/users/login_user`: Autentica a un usuario. Requiere `email` y `password`.
+- `GET /apps/api/users/get_users`: Lista todos los usuarios registrados.
+- `POST /apps/api/users/create_user`: Crea un nuevo usuario. Requiere `username`, `email` y `password`.
+- `POST /apps/api/users/login_user`: Autentica a un usuario. Requiere `email` y `password`.
 
 ### Utilidades de EscuelaIT y Vimeo
 
-- `POST /api/is-valid-escuelait-url`: Valida si una URL corresponde a una clase de EscuelaIT.
+- `POST /apps/api/is-valid-escuelait-url`: Valida si una URL corresponde a una clase de EscuelaIT.
 
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
-- `POST /api/get-texttrack-url`: Obtiene la URL del archivo de subtítulos (VTT) de un video de EscuelaIT.
+- `POST /apps/api/get-texttrack-url`: Obtiene la URL del archivo de subtítulos (VTT) de un video de EscuelaIT.
 
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
-- `POST /api/get-m3u8-url`: Obtiene la URL del stream de video (M3U8) de un video de EscuelaIT.
+- `POST /apps/api/get-m3u8-url`: Obtiene la URL del stream de video (M3U8) de un video de EscuelaIT.
   - **Body:** `{ "url": "https://escuela.it/..." }`
 
 ### Procesamiento de Audio y Subtítulos (En proceso)
 
-- `POST /api/save-audio-using-m3u8-url`: Descarga y guarda el audio de un stream M3U8 como un archivo `.m4a`.
+- `POST /apps/api/save-audio-using-m3u8-url`: Descarga y guarda el audio de un stream M3U8 como un archivo `.m4a`.
 
   - **Body:** `{ "url": "https://...m3u8", "file_name": "nombre_del_archivo" }`
 
-- `POST /api/get-vtt-content`: Descarga el contenido en crudo de un archivo de subtítulos VTT de Vimeo.
+- `POST /apps/api/get-vtt-content`: Descarga el contenido en crudo de un archivo de subtítulos VTT de Vimeo.
 
   - **Body:** `{ "url": "https://player.vimeo.com/texttrack/..." }`
 
-- `POST /api/vtt-to-plain-text`: Convierte el contenido de un archivo VTT a texto plano, eliminando timestamps y metadatos.
+- `POST /apps/api/vtt-to-plain-text`: Convierte el contenido de un archivo VTT a texto plano, eliminando timestamps y metadatos.
   - **Body:** `{ "value": "WEBVTT..." }`
 
 ### Utilidades de YouTube
 
-- `POST /api/is-valid-youtube-url`: Valida si una URL corresponde a un video de YouTube.
+- `POST /apps/api/is-valid-youtube-url`: Valida si una URL corresponde a un video de YouTube.
 
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
-- `POST /api/get-youtube-transcript-json`: Obtiene la transcripción de un video de YouTube en formato JSON.
+- `POST /apps/api/get-youtube-transcript-json`: Obtiene la transcripción de un video de YouTube en formato JSON.
 
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
-- `POST /api/get-youtube-transcript-vtt`: Obtiene la transcripción en formato WebVTT.
+- `POST /apps/api/get-youtube-transcript-vtt`: Obtiene la transcripción en formato WebVTT.
 
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
-- `POST /api/get-youtube-transcript-srt`: Obtiene la transcripción en formato SRT.
+- `POST /apps/api/get-youtube-transcript-srt`: Obtiene la transcripción en formato SRT.
 
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
-- `POST /api/get-youtube-transcript-plain-text`: Obtiene la transcripción como texto plano.
+- `POST /apps/api/get-youtube-transcript-plain-text`: Obtiene la transcripción como texto plano.
   - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
 ### Transcripción de Archivos Locales
 
-- `POST /api/transcribe-video-file/<video_id>/`: Inicia el proceso de transcripción para un video local ya subido.
+- `POST /apps/api/transcribe-video-file/<video_id>/`: Inicia el proceso de transcripción para un video local ya subido.
   - **URL Param:** `video_id` (el ID del video en la base de datos).
   - **Descripción:** Extrae el audio del archivo de video, lo transcribe usando OpenAI Whisper y guarda el resultado en la base de datos. Este es un proceso que puede tardar varios minutos.
-
-### Agente de IA para Procesamiento de Markdown
-
-Estos endpoints utilizan el agente de IA para procesar la transcripción de un video y devolver un documento Markdown estructurado.
-
-- `POST /agent/process-vtt-escuelait`: Procesa un video de EscuelaIT.
-
-  - **Body:** `{ "url": "https://escuela.it/cursos/.../clase/..." }`
-
-- `POST /agent/process-vtt-youtube`: Procesa un video de YouTube.
-  - **Body:** `{ "url": "https://www.youtube.com/watch?v=..." }`
 
 ## Cómo Probar la Transcripción Local
 
@@ -179,7 +168,7 @@ Para probar el endpoint de transcripción de archivos locales, necesitas tener u
     - Usa una herramienta como Postman, Insomnia o `curl` para hacer una petición `POST` al endpoint, reemplazando `<video_id>` con el ID que obtuviste.
       ```bash
       # Ejemplo con curl
-      curl -X POST http://127.0.0.1:8000/api/transcribe-video-file/1/
+      curl -X POST http://127.0.0.1:8000/apps/api/transcribe-video-file/1/
       ```
     - La transcripción puede tardar varios minutos. Una vez finalizada, puedes verificar el resultado en la tabla `api_transcription` de tu base de datos.
 
