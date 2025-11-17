@@ -8,7 +8,7 @@ ENV/
 env.bak/
 .direnv/
 node_modules/
-agent\credenciales.json
+
 # ----------------------------------------------------------------
 # Archivos de Secretos y Configuración Local
 # ----------------------------------------------------------------
