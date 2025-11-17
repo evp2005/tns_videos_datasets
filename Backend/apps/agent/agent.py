@@ -1,7 +1,6 @@
 import os 
 import vertexai
-from token_count import count_tokens
-from urls_extractor import extract_info_urls
+from agent_tools import extract_info_urls, count_tokens
 from dotenv import load_dotenv
 from langchain_google_vertexai import ChatVertexAI
 from langchain_community.document_loaders import WebBaseLoader
@@ -18,6 +17,15 @@ tokens = count_tokens(result)
 
 print(tokens)
 
+prompt = f"""Analizaras el siguiente contenido y extraeras todo su contenido en formato Markdown.
+        - Primero analizaras el contenido y lo diviras por capitulos importantes. 
+        - Ahora con esa division por capitulos crearas un indice.
+        - El indice debe tener los tiempos de Inicio y Fin (format: HH:MM:SS) del contenido original , no inventes tiempos, los colocaras al lado de cada titulo del indice.
+        - Solo el responderas con el Indice generado, no mandes ningun mensaje adicional que no tenga que ver con el indice.
+        """
+#Finalmente despues del indice escribiras todo el contenido extraido respetando su estado original y coloando y respetando los tiempos del contenido original. Crearas los parrafos de los capitulos respentando el indice que creaste. TODO en formato Markdown.
+
+prompt_markdown = f""""""
 
 vertexai.init(project=project_id, location=location_l)
 
@@ -27,22 +35,42 @@ class AgenteP:
         self.location = location
 
     def set_up(self) -> None:
-        self.model = ChatVertexAI(model_name="gemini-2.5-pro", temperature= 0.6)
+        self.model = ChatVertexAI(model_name="gemini-2.5-flash", temperature= 0.6)
 
-    def query(self, input: str):
+    def query(self,system_input: str, input: str, media: str) -> None:
         # image_message = {
         #     "type": "image_url",
-        #     "image_url": {"url": "https://www.youtube.com/watch?v=r8-3Iv7XExE&t=154s"},
-        # } 
-        #Finalmente despues del indice escribiras todo el contenido extraido respetando su estado original y coloando y respetando los tiempos del contenido original. Crearas los parrafos de los capitulos respentando el indice que creaste. TODO en formato Markdown.             
-        message = [SystemMessage(content= """Analizaras el siguiente contenido y extraeras todo su contenido en formato Markdown.
-        Primero analizaras el contenido y lo diviras por capitulos. 
-        Ahora con esa division por capitulos crearas un indice.
-        """),
-                HumanMessage(content=[input, result])]
+        #     "image_url": {"url": ""},
+        # }
+        
+        message = [SystemMessage(content= system_input),
+                HumanMessage(content=[input, media])]
         respuesta = self.model.invoke(message)
         return print(respuesta.content) 
 
-agent = AgenteP(project=project_id, location=location_l)
-agent.set_up()
-agent.query("Analiza el siguiente URL y extrae todo su contenido en formato TXT.")
+agent_indice = AgenteP(project=project_id, location=location_l)
+agent_indice.set_up()
+result_indice = agent_indice.query(prompt, "Genera el indice del siguiente contenido:", result)
+
+# agent_t_markdown = AgenteP(project=project_id, location=location_l)
+# agent_t_markdown.set_up()
+# agent_t_markdown.query(prompt, "Genera la transcripcion en formato Markdown del siguiente contenido:", result_indice)
+
+prompt_txt = f"""
+### Eres un asistente el cual tiene la funcion de extraer todo el contenido de una transcripcion y convertirla en un archivo de texto plano (.txt).
+- El contenido extraido debe estar dividido en parrafos logicos segun el indice. 
+- Obviaras las palabras de relleno como "uhm", "ahh"y demas expresiones comunes, ademas de palabras que se repitan mucho en una oracion, ejemplo: "Claro si si si, no no no", etc.
+- Respeta los tiempos de inicio y fin (format: HH:MM:SS) del contenido original.
+- Las lineas de tiempo deben estar ubicadas antes de cada parrafo correspondiente, ejemplo: 
+'''
+[HH:MM:SS]-[HH:MM:SS]
+Contenido del parrafo correspondiente...
+'''
+- No inventes tiempos.
+#INDICE:
+{result_indice}
+"""
+
+agent_t_txt = AgenteP(project=project_id, location=location_l)
+agent_t_txt.set_up()
+agent_t_txt.query(prompt_txt, "Genera la transcripcion en formato txt del siguiente contenido:", result)
