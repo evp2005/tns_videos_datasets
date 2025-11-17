@@ -31,7 +31,25 @@ INSTALLED_APPS = [
     'corsheaders',
     'apps.api.apps.ApiAppConfig', 
     'infrastructure.apps.InfrastructureConfig', 
+
+
+    'apps.dubbing',
 ]
+
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 500 * 1024 * 1024  # 500 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 500 * 1024 * 1024  # 500 MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+
+DUBBING_CONFIG = {
+    'MAX_FILE_SIZE': 500 * 1024 * 1024, 
+    'SUPPORTED_FORMATS': ['.mp4', '.avi', '.mov', '.mkv', '.webm'],
+    'UPLOAD_DIR': 'uploads/',
+    'OUTPUT_DIR': 'outputs/',
+}
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
