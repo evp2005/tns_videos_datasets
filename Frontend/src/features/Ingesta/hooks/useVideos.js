@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { fetchVideoInfo } from "../services/videoApi";
+import axios from "axios";
+
+const BASE_URL = "http://127.0.0.1:8000/api";
 
 export const useVideos = () => {
     const [videos, setVideos] = useState([]);
@@ -24,21 +27,51 @@ export const useVideos = () => {
         }
     };
 
-    const addVideo = (videoData) => {
+    const addVideo = async (videoData) => {
         if (!videoData) return;
 
-        setVideos(prev => {
-            const newVideos = [...prev, videoData];
+        setLoading(true);
+        setError(null);
 
-            // ⚡ mostrar en consola todos los títulos y duraciones
-            console.log("Videos agregados:", newVideos.map(v => ({
-                title: v.title,
-                duration: v.duration,
-                origin: v.origin_video
-            })));
+        try {
+            console.log("📤 Enviando al backend:", videoData);
 
-            return newVideos;
-        });
+            // ✅ ENVIAR AL BACKEND PRIMERO
+            const response = await axios.post(
+                `${BASE_URL}/users/upload_video`,
+                videoData
+            );
+
+            console.log("✅ Respuesta del backend:", response.data);
+
+            // ✅ Si se guardó exitosamente, agregar al estado local
+            const savedVideo = {
+                ...videoData,
+                id: response.data.id // ID generado por la base de datos
+            };
+
+            setVideos(prev => {
+                const newVideos = [...prev, savedVideo];
+
+                console.log("📊 Videos en estado:", newVideos.map(v => ({
+                    id: v.id,
+                    title: v.title,
+                    duration: v.duration,
+                    origin: v.origin_video
+                })));
+
+                return newVideos;
+            });
+
+            return response.data;
+
+        } catch (err) {
+            console.error("❌ Error al guardar en DB:", err.response?.data || err.message);
+            setError("Error al guardar el video en la base de datos");
+            throw err;
+        } finally {
+            setLoading(false);
+        }
     };
 
     return {
@@ -46,6 +79,6 @@ export const useVideos = () => {
         loading,
         error,
         getVideoInfo,
-        addVideo, // ✅ Nombre correcto exportado
+        addVideo,
     };
 };

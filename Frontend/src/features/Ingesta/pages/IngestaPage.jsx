@@ -12,7 +12,7 @@ function IngestaPage() {
     const [videoInput, setVideoInput] = useState("");
     const [languageInput, setLanguageInput] = useState("Español");
     const [originInput, setOriginInput] = useState("YouTube");
-    const [message, setMessage] = useState({ text: "", type: "" }); // { text: '', type: 'success' | 'error' }
+    const [message, setMessage] = useState({ text: "", type: "" });
 
     const showMessage = (text, type = "success") => {
         setMessage({ text, type });
@@ -26,25 +26,36 @@ function IngestaPage() {
         }
 
         try {
+            console.log("🎬 Iniciando proceso para:", videoInput);
+
             const info = await getVideoInfo(videoInput);
             if (!info) {
                 showMessage("⚠️ No se pudo obtener la información del video", "error");
                 return;
             }
 
+            console.log("📋 Info obtenida:", info);
+
+            // ✅ Construir objeto con todos los campos
             const videoData = {
-                ...info,
-                language: languageInput,
+                title: info.title,
+                duration: info.duration,
                 origin_video: originInput,
-                user_id: 1
+                url_video: videoInput,
+                state: info.state || "Pending",
+                language: languageInput,
+                user_id: 1,
+                miniature: info.miniature || null  // ✅ Incluir miniatura explícitamente
             };
+
+            console.log("📤 Datos completos a enviar:", videoData);
 
             await addVideo(videoData);
             showMessage("✅ Video agregado correctamente");
 
-            setVideoInput(""); // limpiar input
+            setVideoInput("");
         } catch (err) {
-            console.error("Error al agregar video:", err);
+            console.error("❌ Error al agregar video:", err);
             showMessage("❌ Ocurrió un error al agregar el video", "error");
         }
     };
@@ -58,13 +69,11 @@ function IngestaPage() {
                 <section className="flex-1 bg-[#FAFAF7] overflow-y-auto">
                     <div className="flex justify-center p-8">
                         <div className="w-full max-w-6xl">
-                            {/* Header */}
                             <div className="mb-8">
                                 <h1 className="font-bold text-3xl text-gray-900 mb-2">Ingesta de Videos</h1>
                                 <p className="text-gray-600">Agrega videos desde diferentes fuentes para procesarlos</p>
                             </div>
 
-                            {/* Mensajes */}
                             {message.text && (
                                 <div className={`px-4 py-3 rounded-lg mb-4 ${message.type === "success" ? "bg-green-50 border border-green-200 text-green-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
                                     {message.text}
@@ -77,10 +86,9 @@ function IngestaPage() {
                                 </div>
                             )}
 
-                            {/* Formulario */}
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 px-8 py-6 mb-8">
                                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Agrega videos</h2>
-                                <p className="text-gray-600 mb-6">El título y duración se extraerán automáticamente del video</p>
+                                <p className="text-gray-600 mb-6">El título, duración y miniatura se extraerán automáticamente del video</p>
 
                                 <div className="grid grid-cols-3 gap-8 mb-6">
                                     <FuenteSelect onChange={setOriginInput} defaultValue={originInput} />
@@ -113,7 +121,6 @@ function IngestaPage() {
                                 </button>
                             </div>
 
-                            {/* Tabla */}
                             <AgregadosIngresadosTable videos={videos} />
                         </div>
                     </div>

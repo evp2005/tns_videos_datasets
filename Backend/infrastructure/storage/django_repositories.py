@@ -11,7 +11,7 @@ class DjangoUserRepository(UserRepository):
         django_user = DjangoUser.objects.create(
             username=username,
             email=email,
-            password=password_hash  # El hash ya viene del core
+            password=password_hash
         )
         return to_domain_user(django_user)
 
@@ -48,13 +48,15 @@ class DjangoVideoRepository(VideoRepository):
         except DjangoVideo.DoesNotExist:
             return None
 
-    def create(self, title: str, origin_video: str, duration: str, language: str, url_video: str, user: DomainUser) -> DomainVideo:
+    def create(self, title: str, origin_video: str, duration: str, language: str, url_video: str, miniature: str, user: DomainUser) -> DomainVideo:
+        
         django_video = DjangoVideo.objects.create(
             title=title,
             origin_video=origin_video,
             duration=duration,
             language=language,
             url_video=url_video,
+            miniature=miniature,  # Guardar miniatura
             user_id=user.id
         )
         return to_domain_video(django_video)
