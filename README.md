@@ -181,3 +181,44 @@ Los siguientes pasos en el desarrollo incluyen:
 - Integrar una librería o servicio de transcripción de audio/video más avanzado, o mejorar el procesamiento de VTT para una transcripción más robusta.
 - Desarrollar la lógica para procesar videos, generar transcripciones estructuradas y organizar los datasets resultantes.
 - Implementar la persistencia de los datos extraídos (URLs de texttrack, M3U8, contenido VTT, audio guardado) en la base de datos.
+
+
+
+
+
+# Sistema de Doblaje de Videos - Backend API ZZZZZZZZZZZZZZZZZZZZZZZZZ
+
+##  Descripción
+Sistema de doblaje automático de videos que permite traducir y generar audio en diferentes idiomas manteniendo la sincronización temporal.
+
+##  Endpoints Disponibles
+
+### 1. VERIFICAR SI EL DOBLAJE ESTA FUNCIONANDO
+```http'''
+GET http://localhost:8000/api/dubbing/health/
+
+### 2. Doblar Video
+http
+POST http://localhost:8000/api/dubbing/dub/
+
+
+### 3.  
+Body (form-data):
+
+Key     	    Type	      Value                 	Descripción
+
+file	        File	  [Selecciona tu video]	      OBLIGATORIO
+target_lang	  Text	       es	                    Idioma destino
+source_lang	  Text	      auto	     "opcional"   Idioma origen
+use_edge_tts  Text	      false	     "opcional"   true/false
+
+
+Idiomas Soportados
+Español: es
+Inglés: en
+Francés: fr
+Alemán: de
+Italiano: it
+Portugués: pt
+Chino: zh
+Japonés: ja   HAY MAS....
