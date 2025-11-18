@@ -22,19 +22,19 @@ extract-youtube
 
 
 
-pydub==0.25.1
-torch>=2.2.0
-torchaudio>=2.2.0
-numpy>=1.24.3
-googletrans==4.0.0-rc1
+pydub
+torch
+torchaudio
+numpy
+googletrans
 
-gTTS==2.3.2
-edge-tts==6.1.0
-SpeechRecognition==3.10.0
-tqdm==4.65.0
+gTTS
+edge-tts
+SpeechRecognition
+tqdm
 
-httpx==0.24.1
-httpcore==0.17.3 
-langsmith==0.1.147
+httpx
+httpcore
+langsmith
 
 googletrans-py

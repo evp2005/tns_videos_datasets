@@ -1,4 +1,5 @@
 import json
+from infrastructure.models import Video
 from core import services
 from django.http import JsonResponse
 from utils import http_utils, text_utils
@@ -57,6 +58,11 @@ def login_user(request):
         except AuthenticationError as e: # Capturar excepciones de autenticación
             return JsonResponse({"error": str(e)}, status=401) # Devolver error 401
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+@csrf_exempt
+def get_videos(request):
+    videos = Video.objects.all().values()
+    return JsonResponse(list(videos), safe=False)
 
 # Endpoint para subir un video
 @csrf_exempt

@@ -58,7 +58,6 @@ class DjangoVideoRepository(VideoRepository):
             user_id=user.id
         )
         return to_domain_video(django_video)
-
 class DjangoTranscriptionRepository(TranscriptionRepository):
     def update_or_create(self, video: DomainVideo, text: str) -> DomainTranscription:
         django_transcription, _ = DjangoTranscription.objects.update_or_create(

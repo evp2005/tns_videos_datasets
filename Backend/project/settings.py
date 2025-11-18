@@ -97,8 +97,11 @@ DATABASES = {
         'PORT':'3306',
         'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES',
+            'charset': 'utf8mb4',
+            'use_unicode': True,
+            'init_command': "SET NAMES 'utf8mb4'"
         },
-        }
+    }
 }
 
 
