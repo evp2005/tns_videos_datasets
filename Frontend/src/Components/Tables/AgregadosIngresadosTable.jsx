@@ -7,7 +7,12 @@ import Procesando from "../../Components/Estados/Procesando";
 import Revision from "../../Components/Estados/Revision";
 
 const AgregadosIngresadosTable = ({ videos = [] }) => {
+<<<<<<< HEAD
     const [openMenuId, setOpenMenuId] = useState(null);
+=======
+    // Obtener los últimos 3 videos
+    const recentVideos = videos.slice(-3).reverse();
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
 
     // Obtener los últimos 3 videos
     const recentVideos = videos.slice(-3).reverse();
@@ -16,6 +21,7 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
         switch (estado) {
             case "Completado":
             case "Completed":
+<<<<<<< HEAD
                 return <Completado />;
             case "Procesando":
             case "Processing":
@@ -27,11 +33,21 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                 return <Error />;
             case "Revision":
                 return <Revision />;
+=======
+                return "bg-green-100 text-green-700 border border-green-200";
+            case "Procesando":
+            case "Processing":
+                return "bg-blue-100 text-blue-700 border border-blue-200";
+            case "Pendiente":
+            case "Pending":
+                return "bg-yellow-100 text-yellow-700 border border-yellow-200";
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
             default:
                 return <Pendiente />;
         }
     };
 
+<<<<<<< HEAD
     const getProgressValue = (estado, progress) => {
         // Si hay un valor de progreso específico, usarlo
         if (progress !== undefined && progress !== null) {
@@ -62,6 +78,15 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
         console.log(`Video ${videoId}: ${option}`);
         setOpenMenuId(null);
         // Aquí puedes agregar la lógica para cada opción
+=======
+    const getEstadoTexto = (estado) => {
+        const traducciones = {
+            "Pending": "Pendiente",
+            "Processing": "Procesando",
+            "Completed": "Completado"
+        };
+        return traducciones[estado] || estado;
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
     };
 
     if (recentVideos.length === 0) {
@@ -82,7 +107,7 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="px-8 py-6 border-b border-gray-200">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Agregados Ingresados</h3>
-                <p className="text-gray-600">Selecciona qué hacer con cada video</p>
+                <p className="text-gray-600">Últimos {recentVideos.length} videos agregados</p>
             </div>
 
             <div className="p-6">
@@ -92,16 +117,24 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Miniatura
                             </th>
+<<<<<<< HEAD
                             <th className="pb-4 text-left text-sm font-bold text-gray-700 pl-4">
+=======
+                            <th className="pb-4 text-left text-sm font-medium text-gray-700 pl-4">
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                                 Título
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Fuente
                             </th>
+<<<<<<< HEAD
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Progreso
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
+=======
+                            <th className="pb-4 text-center text-sm font-medium text-gray-700">
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                                 Estado
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700 w-20">
@@ -109,6 +142,7 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                         </tr>
                     </thead>
                     <tbody>
+<<<<<<< HEAD
                         {recentVideos.map((video, index) => {
                             const progressValue = getProgressValue(video.state, video.progress);
 
@@ -244,6 +278,50 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                                 </tr>
                             );
                         })}
+=======
+                        {recentVideos.map((video, index) => (
+                            <tr key={video.id} className={`${index !== recentVideos.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                                <td className="py-6 w-40">
+                                    <div className="flex items-center justify-center">
+                                        {video.miniature ? (
+                                            <img
+                                                src={video.miniature}
+                                                alt={video.title}
+                                                className="w-32 h-20 object-cover rounded-lg"
+                                                onError={(e) => {
+                                                    // Si la imagen falla al cargar, mostrar el ícono
+                                                    e.target.style.display = 'none';
+                                                    e.target.nextElementSibling.style.display = 'flex';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <div
+                                            className={`items-center justify-center w-32 h-20 bg-gray-100 rounded-lg ${video.miniature ? 'hidden' : 'flex'}`}
+                                            style={video.miniature ? { display: 'none' } : { display: 'flex' }}
+                                        >
+                                            <FaPlay className="text-gray-400 text-xl" />
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="py-6 pl-4">
+                                    <div>
+                                        <div className="font-medium text-gray-900 mb-1 line-clamp-2">
+                                            {video.title}
+                                        </div>
+                                        <div className="text-sm text-gray-500">{video.duration}</div>
+                                    </div>
+                                </td>
+                                <td className="py-6 text-center">
+                                    <span className="text-gray-700">{video.origin_video}</span>
+                                </td>
+                                <td className="py-6 text-center">
+                                    <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getEstadoColor(video.state)}`}>
+                                        {getEstadoTexto(video.state)}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+>>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                     </tbody>
                 </table>
             </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../hooks/useLogin.js";
+import { toast } from "react-hot-toast";
 import imagen from "../../../assets/Imagen Windows11.jpg";
 import logo from "../../../assets/logo_2.png";
 
@@ -12,7 +13,6 @@ function LoginPage() {
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 
-    // 🚀 Si ya hay token, redirigir automáticamente a /inicio
     useEffect(() => {
         const token = sessionStorage.getItem("token") || localStorage.getItem("token");
         if (token) navigate("/inicio");
@@ -23,10 +23,19 @@ function LoginPage() {
         try {
             const data = await login(email, password, rememberMe);
             console.log("✅ Login exitoso:", data);
-            navigate("/inicio");
+            
+            // ✅ Pequeño delay para asegurar que el proceso de login termine correctamente
+            setTimeout(() => {
+                navigate("/inicio", { 
+                    state: { showWelcomeMessage: true } 
+                });
+            }, 100);
+            
         } catch (err) {
             console.error("❌ Error login:", err.message);
-            alert("Error al iniciar sesión");
+            
+            // ✅ Mensaje de error mejorado
+            toast.error('❌ Credenciales incorrectas. Verifique sus datos.');
         }
     };
 
@@ -51,8 +60,9 @@ function LoginPage() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder=" "
                                         className="peer w-96 h-[3rem] rounded-lg border border-gray-300 px-[1rem] outline-none bg-gray-50 focus:border-blue-500 focus:bg-white"
+                                        required
                                     />
-                                    <label htmlFor="Usuario" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-gray-500 text-[0.875rem] pointer-events-none peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500">Email</label>
+                                    <label htmlFor="Usuario" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-gray-500 text-[0.875rem] pointer-events-none transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-[0.875rem] peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[0.75rem] peer-focus:text-blue-500">Email</label>
                                 </div>
 
                                 <div className="relative mb-[0.625rem]">
@@ -63,36 +73,46 @@ function LoginPage() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder=" "
                                         className="peer w-96 h-[3rem] rounded-lg border border-gray-300 px-[1rem] outline-none bg-gray-50 focus:border-blue-500 focus:bg-white"
+                                        required
                                     />
-                                    <label htmlFor="Contraseña" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-gray-500 text-[0.875rem] pointer-events-none peer-focus:top-0 peer-focus:text-[0.75rem] peer-focus:text-blue-500">Contraseña</label>
+                                    <label htmlFor="Contraseña" className="absolute left-[1rem] top-1/2 -translate-y-1/2 text-gray-500 text-[0.875rem] pointer-events-none transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-[0.875rem] peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[0.75rem] peer-focus:text-blue-500">Contraseña</label>
                                 </div>
 
                                 <div className="flex items-center gap-[0.5rem]">
                                     <input
                                         type="checkbox"
+                                        id="rememberMe"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
                                         className="w-[1rem] h-[1rem] rounded cursor-pointer"
                                     />
-                                    <span className="text-[0.875rem] text-gray-700">Mantener sesión iniciada</span>
+                                    <label htmlFor="rememberMe" className="text-[0.875rem] text-gray-700 cursor-pointer">Mantener sesión iniciada</label>
                                 </div>
 
                                 <button
-                                    className="w-96 h-[3rem] rounded-lg bg-[#367AFF] text-white font-medium hover:bg-[#2563EB]"
+                                    className="w-96 h-[3rem] rounded-lg bg-[#367AFF] text-white font-medium hover:bg-[#2563EB] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     type="submit"
                                     disabled={loading}
                                 >
                                     {loading ? "Ingresando..." : "Ingresar"}
                                 </button>
 
-                                {error && <p className="text-red-500 mt-2">{error}</p>}
+                                {error && (
+                                    <div className="text-red-500 text-sm mt-2 p-2 bg-red-50 rounded-lg">
+                                        {error}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </form>
                 </div>
             </article>
             <article className="hidden lg:block">
-                <img className="w-full h-full object-cover rounded-2xl" src={imagen} alt="" />
+                <img 
+                    className="w-full h-full object-cover rounded-2xl" 
+                    src={imagen} 
+                    alt="Imagen decorativa de Windows 11" 
+                />
             </article>
         </section>
     );
