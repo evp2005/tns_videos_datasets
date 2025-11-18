@@ -73,16 +73,16 @@ def upload_video(request):
                 language=data["language"],
                 url_video=data["url_video"],
                 user_id=data["user_id"],
+                miniature=data.get("miniature"),  # ✅ AGREGAR ESTA LÍNEA
                 user_repo=user_repo,
                 video_repo=video_repo
             )
             return JsonResponse({"mensaje": "Video subido con exito", "id": vid.id})
-        except UserCreationError as e: # Si el usuario no existe
+        except UserCreationError as e:
             return JsonResponse({"error": str(e)}, status=400)
         except Exception as e:
             return JsonResponse({"error": "Error al subir el video: " + str(e)}, status=500)
     return JsonResponse({"error": "Método no permitido"}, status=405)
-
 
 # EscuelaIT
 @api_view(['POST']) 
