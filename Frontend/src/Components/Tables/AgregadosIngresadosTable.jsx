@@ -5,14 +5,10 @@ import Error from "../../Components/Estados/Error";
 import Pendiente from "../../Components/Estados/Pendiente";
 import Procesando from "../../Components/Estados/Procesando";
 import Revision from "../../Components/Estados/Revision";
+import { Link } from 'react-router-dom'
 
 const AgregadosIngresadosTable = ({ videos = [] }) => {
-<<<<<<< HEAD
     const [openMenuId, setOpenMenuId] = useState(null);
-=======
-    // Obtener los últimos 3 videos
-    const recentVideos = videos.slice(-3).reverse();
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
 
     // Obtener los últimos 3 videos
     const recentVideos = videos.slice(-3).reverse();
@@ -21,7 +17,6 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
         switch (estado) {
             case "Completado":
             case "Completed":
-<<<<<<< HEAD
                 return <Completado />;
             case "Procesando":
             case "Processing":
@@ -33,21 +28,11 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                 return <Error />;
             case "Revision":
                 return <Revision />;
-=======
-                return "bg-green-100 text-green-700 border border-green-200";
-            case "Procesando":
-            case "Processing":
-                return "bg-blue-100 text-blue-700 border border-blue-200";
-            case "Pendiente":
-            case "Pending":
-                return "bg-yellow-100 text-yellow-700 border border-yellow-200";
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
             default:
                 return <Pendiente />;
         }
     };
 
-<<<<<<< HEAD
     const getProgressValue = (estado, progress) => {
         // Si hay un valor de progreso específico, usarlo
         if (progress !== undefined && progress !== null) {
@@ -78,15 +63,6 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
         console.log(`Video ${videoId}: ${option}`);
         setOpenMenuId(null);
         // Aquí puedes agregar la lógica para cada opción
-=======
-    const getEstadoTexto = (estado) => {
-        const traducciones = {
-            "Pending": "Pendiente",
-            "Processing": "Procesando",
-            "Completed": "Completado"
-        };
-        return traducciones[estado] || estado;
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
     };
 
     if (recentVideos.length === 0) {
@@ -117,24 +93,16 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Miniatura
                             </th>
-<<<<<<< HEAD
                             <th className="pb-4 text-left text-sm font-bold text-gray-700 pl-4">
-=======
-                            <th className="pb-4 text-left text-sm font-medium text-gray-700 pl-4">
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                                 Título
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Fuente
                             </th>
-<<<<<<< HEAD
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
                                 Progreso
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700">
-=======
-                            <th className="pb-4 text-center text-sm font-medium text-gray-700">
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                                 Estado
                             </th>
                             <th className="pb-4 text-center text-sm font-bold text-gray-700 w-20">
@@ -142,7 +110,6 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                         </tr>
                     </thead>
                     <tbody>
-<<<<<<< HEAD
                         {recentVideos.map((video, index) => {
                             const progressValue = getProgressValue(video.state, video.progress);
 
@@ -200,10 +167,10 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                                             <div className="w-32 bg-gray-200 rounded-full h-2 overflow-hidden">
                                                 <div
                                                     className={`h-full transition-all duration-500 ease-out rounded-full ${progressValue === 100
-                                                            ? 'bg-blue-500'
-                                                            : progressValue > 0
-                                                                ? 'bg-blue-400'
-                                                                : 'bg-gray-300'
+                                                        ? 'bg-blue-500'
+                                                        : progressValue > 0
+                                                            ? 'bg-blue-400'
+                                                            : 'bg-gray-300'
                                                         }`}
                                                     style={{ width: `${progressValue}%` }}
                                                 />
@@ -251,15 +218,16 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                                                             Segmentación
                                                         </button>
 
-                                                        <button
-                                                            onClick={() => handleOptionClick(video.id, 'transcripcion')}
+                                                        <Link
+                                                            to="/transcripcion"
+                                                            state={{ video }}
                                                             className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                             </svg>
                                                             Transcripción
-                                                        </button>
+                                                        </Link>
 
                                                         <button
                                                             onClick={() => handleOptionClick(video.id, 'doblaje')}
@@ -278,50 +246,6 @@ const AgregadosIngresadosTable = ({ videos = [] }) => {
                                 </tr>
                             );
                         })}
-=======
-                        {recentVideos.map((video, index) => (
-                            <tr key={video.id} className={`${index !== recentVideos.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                                <td className="py-6 w-40">
-                                    <div className="flex items-center justify-center">
-                                        {video.miniature ? (
-                                            <img
-                                                src={video.miniature}
-                                                alt={video.title}
-                                                className="w-32 h-20 object-cover rounded-lg"
-                                                onError={(e) => {
-                                                    // Si la imagen falla al cargar, mostrar el ícono
-                                                    e.target.style.display = 'none';
-                                                    e.target.nextElementSibling.style.display = 'flex';
-                                                }}
-                                            />
-                                        ) : null}
-                                        <div
-                                            className={`items-center justify-center w-32 h-20 bg-gray-100 rounded-lg ${video.miniature ? 'hidden' : 'flex'}`}
-                                            style={video.miniature ? { display: 'none' } : { display: 'flex' }}
-                                        >
-                                            <FaPlay className="text-gray-400 text-xl" />
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="py-6 pl-4">
-                                    <div>
-                                        <div className="font-medium text-gray-900 mb-1 line-clamp-2">
-                                            {video.title}
-                                        </div>
-                                        <div className="text-sm text-gray-500">{video.duration}</div>
-                                    </div>
-                                </td>
-                                <td className="py-6 text-center">
-                                    <span className="text-gray-700">{video.origin_video}</span>
-                                </td>
-                                <td className="py-6 text-center">
-                                    <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getEstadoColor(video.state)}`}>
-                                        {getEstadoTexto(video.state)}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
->>>>>>> 8e1041521493bdbe11ce0c098572ff23805f835a
                     </tbody>
                 </table>
             </div>
