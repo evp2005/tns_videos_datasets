@@ -27,7 +27,7 @@ export const useTranscriptSRT = () => {
         setLoading(true);
         try {
             const srtData = await getTranscriptSRT(videoUrl);
-            setTranscript(srtData.result || srtData);    
+            setTranscript(srtData.result || srtData);
         } catch {
             setTranscript("❌ Error al obtener la transcripción en SRT.");
         }
@@ -35,4 +35,4 @@ export const useTranscriptSRT = () => {
     };
 
     return { transcript, loading, fetchSRTTranscript };
-}
+};

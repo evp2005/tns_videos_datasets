@@ -17,7 +17,7 @@ class Video(models.Model):
     miniature = models.URLField(null=True, blank=True)
     origin_video = models.CharField(max_length=100)
     duration = models.CharField(max_length=20)
-    state = models.CharField(max_length=50, default='Pending')
+    state = models.CharField(max_length=50, default='Completed')
     language = models.CharField(max_length=50, default='Español')
     url_video = models.URLField(null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)

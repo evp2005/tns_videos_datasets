@@ -80,7 +80,7 @@ function TranscripcionPage() {
     // === MANEJAR CAMBIO DE FORMATO ===
     const handleFormatoChange = (formato) => {
         setFormatoSeleccionado(formato);
-        
+
         if (formato === "TXT" && !texto) {
             fetchTranscript();
         } else if (formato === "SRT/VTT" && !textoSRT) {
@@ -135,7 +135,7 @@ function TranscripcionPage() {
                                     <span>{video?.origin_video || "Fuente"}</span>
                                     <span>{video?.duration || "Duración"}</span>
                                     <span>
-                                        Ingresado: {video?.created_at ? new Date(video.created_at).toLocaleDateString("es-PE") : "Fecha"}
+                                        Ingresado: {video?.uploaded_at}
                                     </span>
                                 </div>
                                 <div className='flex gap-5'>
@@ -297,7 +297,7 @@ function TranscripcionPage() {
                                             Copiar
                                         </button>
 
-                                        <button 
+                                        <button
                                             className='bg-[#FAFAF7] rounded-lg border-2 w-28 h-8 border-[#EEEFEF] hover:bg-[#EDEDED] transition disabled:opacity-50'
                                             onClick={() => {
                                                 const textToCopy = formatoSeleccionado === "TXT" ? texto : textoSRT;

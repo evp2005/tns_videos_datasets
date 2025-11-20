@@ -80,6 +80,7 @@ def upload_video(request):
                 url_video=data["url_video"],
                 miniature=data.get("miniature"),  # ← agregado
                 user_id=data["user_id"],
+
                 user_repo=user_repo,
                 video_repo=video_repo
             )

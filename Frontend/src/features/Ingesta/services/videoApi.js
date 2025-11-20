@@ -25,7 +25,7 @@ export const getYouTubeThumbnail = (videoUrl) => {
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 };
 
-// 🔹 Obtener info de video desde backend (simulación o API real)
+// 🔹 Obtener info de video desde backend
 export const fetchVideoInfo = async (videoUrl) => {
     try {
         const thumbnailUrl = getYouTubeThumbnail(videoUrl);
@@ -42,17 +42,16 @@ export const fetchVideoInfo = async (videoUrl) => {
             duration: data.duration_string,
             origin_video: "YouTube",
             url_video: videoUrl,
-            state: "Pending",
+            state: "Completed",
             miniature: thumbnailUrl,
         };
     } catch (err) {
         console.warn("Error obteniendo info:", err.response?.data || err.message);
-        // fallback
         return {
             title: "Video de ejemplo 🔥",
             origin_video: "YouTube",
             duration: "00:00:00",
-            state: "Pending",
+            state: "Completed",
             language: "Español",
             url_video: videoUrl,
             miniature: getYouTubeThumbnail(videoUrl),
@@ -88,5 +87,16 @@ export const fetchVideos = async () => {
     } catch (err) {
         console.error("Error fetching videos:", err.response?.data || err.message);
         return [];
+    }
+};
+
+// 🔹 NUEVO: Obtener un video específico por ID desde la base de datos
+export const getVideoById = async (videoId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/video/${videoId}`);
+        return response.data;
+    } catch (err) {
+        console.error("Error al obtener video por ID:", err.response?.data || err.message);
+        throw err;
     }
 };
