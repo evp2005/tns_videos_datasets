@@ -34,7 +34,7 @@ SpeechRecognition
 tqdm
 
 httpx
-httpcore 
+httpcore
 langsmith
 
 googletrans-py

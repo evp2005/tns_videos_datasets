@@ -11,7 +11,7 @@ class DjangoUserRepository(UserRepository):
         django_user = DjangoUser.objects.create(
             username=username,
             email=email,
-            password=password_hash
+            password=password_hash  # El hash ya viene del core
         )
         return to_domain_user(django_user)
 
@@ -49,17 +49,19 @@ class DjangoVideoRepository(VideoRepository):
             return None
 
     def create(self, title: str, origin_video: str, duration: str, language: str, url_video: str, miniature: str, user: DomainUser) -> DomainVideo:
-        
         django_video = DjangoVideo.objects.create(
             title=title,
             origin_video=origin_video,
             duration=duration,
             language=language,
             url_video=url_video,
-            miniature=miniature,  # Guardar miniatura
+            miniature=miniature,
             user_id=user.id
         )
         return to_domain_video(django_video)
+
+    def get_all(self) -> list[DomainVideo]:  # ← agregado
+        return [to_domain_video(video) for video in DjangoVideo.objects.all()]
 
 class DjangoTranscriptionRepository(TranscriptionRepository):
     def update_or_create(self, video: DomainVideo, text: str) -> DomainTranscription:

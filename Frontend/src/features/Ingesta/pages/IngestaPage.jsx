@@ -26,34 +26,29 @@ function IngestaPage() {
         }
 
         try {
-            console.log("🎬 Iniciando proceso para:", videoInput);
-
             const info = await getVideoInfo(videoInput);
             if (!info) {
                 showMessage("⚠️ No se pudo obtener la información del video", "error");
                 return;
             }
 
-            console.log("📋 Info obtenida:", info);
-
-            // ✅ Construir objeto con todos los campos
             const videoData = {
                 title: info.title,
                 duration: info.duration,
                 origin_video: originInput,
                 url_video: videoInput,
-                state: info.state || "Pending",
+                state: "Pending",
                 language: languageInput,
                 user_id: 1,
-                miniature: info.miniature || null  // ✅ Incluir miniatura explícitamente
+                miniature: info.miniature || null
             };
 
-            console.log("📤 Datos completos a enviar:", videoData);
+            const savedVideo = await addVideo(videoData);
+            console.log("✅ Video agregado a DB y estado:", savedVideo);
 
-            await addVideo(videoData);
             showMessage("✅ Video agregado correctamente");
-
             setVideoInput("");
+
         } catch (err) {
             console.error("❌ Error al agregar video:", err);
             showMessage("❌ Ocurrió un error al agregar el video", "error");
@@ -65,7 +60,6 @@ function IngestaPage() {
             <Panel />
             <main className="flex-1 ml-0 lg:ml-64 flex flex-col">
                 <div className="h-14 bg-white border-b border-gray-200"></div>
-
                 <section className="flex-1 bg-[#FAFAF7] overflow-y-auto">
                     <div className="flex justify-center p-8">
                         <div className="w-full max-w-6xl">

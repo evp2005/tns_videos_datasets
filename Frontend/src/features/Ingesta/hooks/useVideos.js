@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { fetchVideoInfo } from "../services/videoApi";
-import axios from "axios";
+import { fetchVideoInfo, uploadVideo, fetchVideos } from "../services/videoApi";
 
-const BASE_URL = "http://127.0.0.1:8000/api";
-const STORAGE_KEY = "last_three_videos";
-
-// 🔹 Función para eliminar emojis antes de enviar al backend
+// Eliminar emojis antes de enviar
 const removeEmojis = (text) => {
     return text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
 };
@@ -15,21 +11,31 @@ export const useVideos = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // 🔹 Cargar del localStorage al iniciar
+    // Cargar los últimos 3 videos desde el backend al montar el componente
     useEffect(() => {
-        const storedVideos = localStorage.getItem(STORAGE_KEY);
-        if (storedVideos) setVideos(JSON.parse(storedVideos));
+        loadLastThreeVideos();
     }, []);
 
-    // 🔹 Guardar siempre los últimos 3 en localStorage
-    const saveToLocalStorage = (videoList) => {
-        const lastThree = videoList.slice(-3);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(lastThree));
+    const loadLastThreeVideos = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const allVideos = await fetchVideos();
+            // Obtener los últimos 3 videos y mostrarlos en orden descendente
+            const lastThree = allVideos.slice(-3).reverse();
+            setVideos(lastThree);
+        } catch (err) {
+            console.error("Error al cargar videos:", err);
+            setError("No se pudieron cargar los videos");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const getVideoInfoSafe = async (url) => {
-        setError(null);
+    // Obtener información del video (miniatura, título, duración)
+    const getVideoInfo = async (url) => {
         setLoading(true);
+        setError(null);
         try {
             const info = await fetchVideoInfo(url);
             if (!info) {
@@ -38,6 +44,7 @@ export const useVideos = () => {
             }
             return info;
         } catch (err) {
+            console.error("Error al obtener info del video:", err);
             setError("No se pudo obtener la información del video");
             return null;
         } finally {
@@ -45,45 +52,35 @@ export const useVideos = () => {
         }
     };
 
+    // Agregar video al backend
     const addVideo = async (videoData) => {
-        if (!videoData) return;
+        if (!videoData) return null;
 
         setLoading(true);
         setError(null);
 
         try {
-            // Asignar un ID temporal si no viene del backend
-            const tempId = Date.now();
-            const newVideo = { ...videoData, id: tempId, state: "Pending" };
+            // Obtener miniatura actualizada
+            const info = await fetchVideoInfo(videoData.url_video);
 
-            // Agregar al estado local y guardar en localStorage
-            setVideos(prev => {
-                const newVideos = [...prev, newVideo].slice(-3);
-                saveToLocalStorage(newVideos);
-                return newVideos;
-            });
+            // Preparar datos para el backend
+            const backendData = {
+                ...videoData,
+                title: removeEmojis(videoData.title),
+                miniature: info?.miniature || videoData.miniature,
+            };
 
-            // Simular proceso de subida/progreso
-            setTimeout(() => {
-                setVideos(prev => {
-                    const updated = prev.map(v => v.id === tempId ? { ...v, state: "Procesando" } : v);
-                    saveToLocalStorage(updated);
-                    return updated;
-                });
-            }, 1000); // 1s después pasa a Procesando
+            // Guardar en la base de datos
+            const savedVideo = await uploadVideo(backendData);
+            console.log("✅ Video guardado en DB:", savedVideo);
 
-            setTimeout(() => {
-                setVideos(prev => {
-                    const updated = prev.map(v => v.id === tempId ? { ...v, state: "Completado" } : v);
-                    saveToLocalStorage(updated);
-                    return updated;
-                });
-            }, 4000); // 4s después pasa a Completado
+            // Recargar solo los últimos 3 videos desde el backend
+            await loadLastThreeVideos();
 
-            return newVideo;
+            return savedVideo;
 
         } catch (err) {
-            console.error("❌ Error al guardar:", err);
+            console.error("❌ Error al guardar video:", err);
             setError("Error al agregar el video");
             throw err;
         } finally {
@@ -91,12 +88,12 @@ export const useVideos = () => {
         }
     };
 
-
     return {
         videos,
         loading,
         error,
-        getVideoInfo: getVideoInfoSafe,
-        addVideo
+        getVideoInfo,
+        addVideo,
+        loadLastThreeVideos, // Por si necesitas recargar manualmente
     };
 };

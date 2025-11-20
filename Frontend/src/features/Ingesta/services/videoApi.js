@@ -3,15 +3,14 @@ import axios from "axios";
 const BASE_URL = "http://127.0.0.1:8000/api";
 
 // Configurar axios
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = true;
 
-// Función para extraer el video ID de YouTube
-const getYouTubeVideoId = (url) => {
+// 🔹 Extraer ID de YouTube
+export const getYouTubeVideoId = (url) => {
     const patterns = [
         /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-        /youtube\.com\/shorts\/([^&\n?#]+)/
+        /youtube\.com\/shorts\/([^&\n?#]+)/,
     ];
-
     for (const pattern of patterns) {
         const match = url.match(pattern);
         if (match && match[1]) return match[1];
@@ -19,74 +18,75 @@ const getYouTubeVideoId = (url) => {
     return null;
 };
 
-// Función para obtener la miniatura
-const getYouTubeThumbnail = (videoUrl) => {
+// 🔹 Obtener miniatura de YouTube
+export const getYouTubeThumbnail = (videoUrl) => {
     const videoId = getYouTubeVideoId(videoUrl);
     if (!videoId) return null;
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 };
 
+// 🔹 Obtener info de video desde backend (simulación o API real)
 export const fetchVideoInfo = async (videoUrl) => {
     try {
-        console.log("🔍 Obteniendo info del video:", videoUrl);
-
         const thumbnailUrl = getYouTubeThumbnail(videoUrl);
-        console.log("🖼️ Thumbnail generada:", thumbnailUrl);
 
-        const detailsResponse = await axios.post(
+        const response = await axios.post(
             `${BASE_URL}/get-youtube-video-details`,
             { url: videoUrl }
         );
 
-        console.log("✅ Info obtenida:", detailsResponse.data);
-
-        const data = detailsResponse.data.result;
+        const data = response.data.result;
 
         return {
-            title: data.title, // Con emojis
+            title: data.title,
             duration: data.duration_string,
             origin_video: "YouTube",
             url_video: videoUrl,
             state: "Pending",
             miniature: thumbnailUrl,
         };
-
     } catch (err) {
-        console.warn("❌ Error al obtener info:", err.response?.data || err.message);
-        const exampleThumbnail = getYouTubeThumbnail(videoUrl);
-
+        console.warn("Error obteniendo info:", err.response?.data || err.message);
+        // fallback
         return {
             title: "Video de ejemplo 🔥",
             origin_video: "YouTube",
-            duration: "01:23:45",
+            duration: "00:00:00",
             state: "Pending",
             language: "Español",
             url_video: videoUrl,
+            miniature: getYouTubeThumbnail(videoUrl),
             user_id: 1,
-            miniature: exampleThumbnail
         };
     }
 };
 
-export const uploadVideo = async (videoData) => {
+// 🔹 Subir video al backend
+export const uploadVideo = async (videoData, isFile = false) => {
     try {
-        console.log("📤 Enviando video al backend:", videoData);
+        const config = { withCredentials: true };
+        if (!isFile) config.headers = { "Content-Type": "application/json" };
 
         const response = await axios.post(
-            `${BASE_URL}/users/upload_video`,
+            `${BASE_URL}/video/upload_video`,
             videoData,
-            { headers: { 'Content-Type': 'application/json' } }
+            config
         );
 
-        console.log("✅ Video guardado exitosamente:", response.data);
         return response.data;
-
     } catch (err) {
-        console.error("❌ Error al guardar video:", {
-            status: err.response?.status,
-            data: err.response?.data,
-            message: err.message
-        });
+        console.error("Error al guardar video:", err.response?.data || err.message);
         throw err;
+    }
+};
+
+// 🔹 Traer todos los videos del backend
+export const fetchVideos = async () => {
+    try {
+        const response = await axios.get(`${BASE_URL}/video/get_videos`);
+        return response.data;
+    } catch (err) {
+        console.error("Error fetching videos:", err.response?.data || err.message);
+        return [];
     }
 };

@@ -83,17 +83,7 @@ def get_all_users(user_repo: UserRepository) -> list[User]:
     """
     return user_repo.get_all()
 
-def create_video(
-    title: str, 
-    origin_video: str, 
-    duration: str, 
-    language: str, 
-    url_video: str, 
-    user_id: int, 
-    miniature: str,  # ✅ AGREGAR ESTE PARÁMETRO
-    user_repo: UserRepository, 
-    video_repo: VideoRepository
-) -> Video:
+def create_video(title: str, origin_video: str, duration: str, language: str, url_video: str, user_id: int, user_repo: UserRepository, video_repo: VideoRepository, miniature: str = "") -> Video:
     """
     Caso de uso: Crear un nuevo video.
     """
@@ -101,8 +91,9 @@ def create_video(
     if not user:
         raise UserCreationError(f"Usuario con ID {user_id} no encontrado para asociar al video.")
 
-    video = video_repo.create(title, origin_video, duration, language, url_video, miniature, user)  # ✅ PASAR miniature
+    video = video_repo.create(title, origin_video, duration, language, url_video, miniature, user)
     return video
+
 
 def authenticate_user(email: str, password: str, user_repo: UserRepository) -> User:
     """

@@ -1,4 +1,5 @@
 import json
+from infrastructure.models import Video
 from core import services
 from django.http import JsonResponse
 from utils import http_utils, text_utils
@@ -58,6 +59,11 @@ def login_user(request):
             return JsonResponse({"error": str(e)}, status=401) # Devolver error 401
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
+@csrf_exempt
+def get_videos(request):
+    videos = Video.objects.all().values()
+    return JsonResponse(list(videos), safe=False)
+
 # Endpoint para subir un video
 @csrf_exempt
 def upload_video(request):
@@ -72,17 +78,18 @@ def upload_video(request):
                 duration=data["duration"],
                 language=data["language"],
                 url_video=data["url_video"],
+                miniature=data.get("miniature"),  # ← agregado
                 user_id=data["user_id"],
-                miniature=data.get("miniature"),  # ✅ AGREGAR ESTA LÍNEA
                 user_repo=user_repo,
                 video_repo=video_repo
             )
             return JsonResponse({"mensaje": "Video subido con exito", "id": vid.id})
-        except UserCreationError as e:
+        except UserCreationError as e: # Si el usuario no existe
             return JsonResponse({"error": str(e)}, status=400)
         except Exception as e:
             return JsonResponse({"error": "Error al subir el video: " + str(e)}, status=500)
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
 
 # EscuelaIT
 @api_view(['POST']) 

@@ -18,7 +18,7 @@ class UserRepository(ABC):
     @abstractmethod
     def get_all(self) -> list[User]:
         pass
-
+    
     @abstractmethod
     def check_password(self, user_id: int, password_plaintext: str) -> bool:
         pass
@@ -30,6 +30,10 @@ class VideoRepository(ABC):
     
     @abstractmethod
     def create(self, title: str, origin_video: str, duration: str, language: str, url_video: str, user: User) -> Video:
+        pass
+    
+    @abstractmethod
+    def get_all(self) -> list[Video]:
         pass
 
 class TranscriptionRepository(ABC):
