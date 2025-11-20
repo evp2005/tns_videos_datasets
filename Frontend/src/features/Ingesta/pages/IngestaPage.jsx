@@ -13,6 +13,7 @@ function IngestaPage() {
     const [languageInput, setLanguageInput] = useState("Español");
     const [originInput, setOriginInput] = useState("YouTube");
     const [message, setMessage] = useState({ text: "", type: "" });
+    const [lastAddedVideoId, setLastAddedVideoId] = useState(null); // <--- ID del último video agregado
 
     const showMessage = (text, type = "success") => {
         setMessage({ text, type });
@@ -46,6 +47,7 @@ function IngestaPage() {
             const savedVideo = await addVideo(videoData);
             console.log("✅ Video agregado a DB y estado:", savedVideo);
 
+            setLastAddedVideoId(savedVideo.id); // <--- guardamos ID del video agregado
             showMessage("✅ Video agregado correctamente");
             setVideoInput("");
 
@@ -108,14 +110,15 @@ function IngestaPage() {
                                 <button
                                     onClick={handleAddVideo}
                                     disabled={loading}
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                                 >
-                                    <FaPlus className="text-xs" />
+                                    <FaPlus className={`text-xs ${loading ? "animate-spin" : ""}`} />
                                     {loading ? "Agregando..." : "Agregar a Cola"}
                                 </button>
                             </div>
 
-                            <AgregadosIngresadosTable videos={videos} />
+                            {/* Tabla de videos agregados */}
+                            <AgregadosIngresadosTable videos={videos} newlyAddedId={lastAddedVideoId} />
                         </div>
                     </div>
                 </section>
