@@ -8,19 +8,16 @@ selenium
 faster-whisper
 ffmpeg-python
 flask
-langchain-community
-
-beautifulsoup4
 langchain-google-vertexai
 python-dotenv
 google-cloud-aiplatform
 youtube-transcript-api
 yt-dlp
-moviepy
 openai-whisper
 extract-youtube
 
-
+pydantic==2.7.4
+moviepy==1.0.3
 
 pydub
 torch

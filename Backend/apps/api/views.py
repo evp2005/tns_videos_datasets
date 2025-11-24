@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from extractor import YouTubeThumbnailExtractor
-from moviepy import VideoFileClip
+from moviepy.editor import VideoFileClip
 from core.services import VideoProcessingError, AuthenticationError, UserCreationError
 from django.views.decorators.csrf import csrf_exempt
 from infrastructure.storage.local_file_storage import LocalAudioStorage

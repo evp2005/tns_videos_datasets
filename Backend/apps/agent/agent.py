@@ -8,7 +8,6 @@ load_dotenv()
 location_l = os.getenv("LOCATION")
 project_id = os.getenv("PROJECT_ID")
 
-
 vertexai.init(project=project_id, location=location_l)
 
 class AgenteP:
