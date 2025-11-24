@@ -89,3 +89,31 @@ def process_vtt_to_markdown_youtube(request):
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt
+@api_view(['POST'])
+def generate_clips_endpoint(request):
+    """
+    Endpoint para generar clips de video basados en segmentos de tiempo.
+    """
+    from apps.agent.serializers import GenerateClipsSerializer
+    from .segmen import Segmentacion
+
+    serializer = GenerateClipsSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    minutes_json = serializer.validated_data['minutes_json']
+    video_path = serializer.validated_data['video_path']
+    output_name = serializer.validated_data['output_name']
+
+    try:
+        segmentador = Segmentacion()
+        # generate_clips imprime a consola, pero no retorna nada específico.
+        # Asumimos éxito si no lanza excepción.
+        segmentador.generate_clips(minutes_json, video_path, output_name)
+        
+        return Response({"status": "success", "message": "Clips generados exitosamente."}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
