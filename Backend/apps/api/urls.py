@@ -12,15 +12,23 @@ urlpatterns = [
     path('video/get_videos', views.get_videos),
     path('save/', include(router.urls)),
 
+    # EscuelaIT related endpoints
     path('is-valid-escuelait-url', views.is_valid_escuelait_url, name='is_valid_escuelait_url'),
     path('get-texttrack-url', views.get_texttrack_url, name='get_texttrack_url'),
     path('get-m3u8-url', views.get_m3u8_url, name='get_m3u8_url'),
     path('save-audio-using-m3u8-url', views.save_audio_using_m3u8_url, name='save_audio_using_m3u8_url'),
+
+    path('get-escuelait-thumbnail', views.get_escuelait_thumbnail, name='get_escuelait_thumbnail'),
+    path('get-escuelait-video-details', views.get_escuelait_video_details, name='get_escuelait_video_details'),
+    path('get-escuelait-title', views.get_escuelait_title, name='get_escuelait_title'),
+    path('get-escuelait-duration', views.get_escuelait_duration, name='get_escuelait_duration'),
+
     path('get-vtt-content', views.get_vtt_content, name='get_vtt_content'),
     path('vtt-to-plain-text', views.vtt_to_plain_text, name='vtt_to_plain_text'),
     path('get-escuelait-transcript-plain-text', views.get_escuelait_transcript_plain_text, name='get_escuelait_transcript_plain_text'),
     path('get-escuelait-transcript-vtt', views.get_escuelait_transcript_vtt, name='get_escuelait_transcript_vtt'),
 
+    # YouTube related endpoints
     path('is-valid-youtube-url', views.is_valid_youtube_url, name='is_valid_youtube_url'),
     path('get-youtube-transcript-json', views.get_youtube_transcript_json, name='get_youtube_transcript_json'),
     path('get-youtube-transcript-vtt', views.get_youtube_transcript_vtt, name='get_youtube_transcript_vtt'),

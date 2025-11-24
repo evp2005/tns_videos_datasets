@@ -1,7 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.remote.webdriver import WebDriver, WebElement, ShadowRoot
+from selenium.webdriver.remote.webdriver import WebDriver, WebElement, ShadowRoot, WebDriverException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from json import loads
 from typing import Any
 
@@ -13,6 +15,36 @@ def get_chrome_driver() -> WebDriver:
   options.add_argument("--restore-last-session=false")
   options.add_argument("--no-first-run")
   return webdriver.Chrome(options=options)
+
+def get_thumbnail_src(driver):
+    """
+    Espera y encuentra el div de la miniatura y extrae la URL del atributo data-thumb.
+    """
+    wait = WebDriverWait(driver, 10)
+    # El elemento es un div normal, no tiene shadow root.
+    thumbnail_div = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.vp-preview")))
+    return thumbnail_div.get_attribute('data-thumb')
+
+def get_title_src(driver):
+    wait = WebDriverWait(driver, 10)
+    title_h1 = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".Newclase-title h1")))
+    return title_h1.text
+
+def get_duration_src(driver):
+    wait = WebDriverWait(driver, 10)
+    # La duración está en el atributo 'aria-valuemax' de la barra de progreso, en segundos.
+    progress_bar = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-progress-bar-focus-target='true']")))
+    duration_seconds_str = progress_bar.get_attribute('aria-valuemax')
+    
+    if duration_seconds_str:
+        try:
+            total_seconds = float(duration_seconds_str)
+            minutes = int(total_seconds // 60)
+            seconds = int(total_seconds % 60)
+            return f"{minutes:02d}:{seconds:02d}"
+        except (ValueError, TypeError):
+            return None
+    return None
 
 
 def get_iframe_video(driver: WebDriver) -> WebElement | None:

@@ -94,6 +94,101 @@ def upload_video(request):
 
 # EscuelaIT
 @api_view(['POST'])
+def get_escuelait_thumbnail(request):
+    """
+    Endpoint para obtener la URL de la miniatura de un video de EscuelaIT.
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    scraper = SeleniumVideoScraper()
+
+    try:
+        thumbnail_url = services.get_escuelait_thumbnail_from_page(url, scraper)
+        return Response({
+            "status": "success",
+            "result": thumbnail_url
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
+
+@api_view(['POST'])
+def get_escuelait_title(request):
+    """
+    Endpoint para obtener la URL del titulo de un video de EscuelaIT.
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    scraper = SeleniumVideoScraper()
+
+    try:
+        title_url = services.get_escuelait_title_from_page(url, scraper)
+        return Response({
+            "status": "success",
+            "result": title_url
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
+            
+@api_view(['POST'])
+def get_escuelait_duration(request):
+    """
+    Endpoint para obtener la URL del titulo de un video de EscuelaIT.
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    scraper = SeleniumVideoScraper()
+
+    try:
+        duration_url = services.get_escuelait_duration_from_page(url, scraper)
+        return Response({
+            "status": "success",
+            "result": duration_url
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
+            
+@api_view(['POST'])
+def get_escuelait_video_details(request):
+    """
+    Obtiene los metadatos de un video de EscuelaIT (título, duración, miniatura).
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    url = serializer.validated_data['url']
+    scraper = SeleniumVideoScraper()
+
+    try:
+        details = services.get_escuelait_details(url, scraper)
+        return Response({
+            "status": "success",
+            "result": details
+        }, status=status.HTTP_200_OK)
+    
+    except (VideoProcessingError, Exception) as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
 def get_escuelait_transcript_plain_text(request):
     """
     Orquesta la obtención de la transcripción en texto plano para un video de EscuelaIT.

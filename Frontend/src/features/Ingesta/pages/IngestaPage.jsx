@@ -4,9 +4,10 @@ import AgregadosIngresadosTable from "../../../Components/Tables/AgregadosIngres
 import { FuenteSelect, IdiomaSelect } from "../../../Components/Select/Select";
 import { FaPlus } from "react-icons/fa";
 import { HiDownload } from "react-icons/hi";
-import { useVideos } from "../hooks/useVideos";
+import { useVideos } from "../hooks/useVideos"; // Asumo que este hook existe
+import axios from "axios"; // Importamos axios para la llamada a la API
 function IngestaPage() {
-  const { videos, loading, error, getVideoInfo, addVideo } = useVideos();
+  const { videos, loading, error, addVideo } = useVideos(); // Quitamos getVideoInfo del hook
   const [videoInput, setVideoInput] = useState("");
   const [originInput, setOriginInput] = useState("youtube");
   const [languageInput, setLanguageInput] = useState("Español");
@@ -18,6 +19,26 @@ function IngestaPage() {
     setTimeout(() => setMessage({ text: "", type: "" }), 3000);
   };
 
+  // Esta función ahora vive aquí, pero idealmente estaría en tu hook `useVideos`
+  const getVideoInfo = async (url, origin) => {
+    let endpoint = "";
+    if (origin === "youtube") {
+      endpoint = "http://127.0.0.1:8000/api/get-youtube-video-details";
+    } else if (origin === "EscuelaIT") {
+      endpoint = "http://127.0.0.1:8000/api/get-escuelait-video-details";
+    } else {
+      throw new Error("Origen de video no soportado");
+    }
+
+    try {
+      const response = await axios.post(endpoint, { url });
+      return response.data.result; // Devuelve el objeto con title, duration, miniature
+    } catch (err) {
+      console.error(`Error fetching video info from ${origin}:`, err);
+      return null;
+    }
+  };
+
   const handleAddVideo = async () => {
     if (!videoInput.trim()) {
       alert("Por favor ingresa una URL de video");
@@ -25,7 +46,7 @@ function IngestaPage() {
     }
 
     try {
-      const info = await getVideoInfo(videoInput);
+      const info = await getVideoInfo(videoInput, originInput);
       if (!info) {
         showMessage("⚠️ No se pudo obtener la información del video", "error");
         return;

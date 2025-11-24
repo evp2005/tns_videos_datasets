@@ -31,6 +31,33 @@ class AuthenticationError(Exception):
 class UserCreationError(Exception):
     pass
 
+def get_escuelait_thumbnail_from_page(url: str, scraper: VideoScraper) -> str:
+    """
+    Caso de uso: Obtener la URL de la miniatura de una página de EscuelaIT.
+    """
+    thumbnail_url = scraper.get_thumbnail_url(url)
+    if not thumbnail_url:
+        raise VideoProcessingError("No se pudo encontrar la URL de la miniatura.")
+    return thumbnail_url
+
+def get_escuelait_title_from_page(url: str, scraper: VideoScraper) -> str:
+    """
+    Caso de uso: Obtener la URL del titulo de una página de EscuelaIT.
+    """
+    title_url = scraper.get_title_url(url)
+    if not title_url:
+        raise VideoProcessingError("No se pudo encontrar la URL del título.")
+    return title_url
+
+def get_escuelait_duration_from_page(url: str, scraper: VideoScraper) -> str:
+    """
+    Caso de uso: Obtener la URL del titulo de una página de EscuelaIT.
+    """
+    duration_url = scraper.get_duration_url(url)
+    if not duration_url:
+        raise VideoProcessingError("No se pudo encontrar la URL del título.")
+    return duration_url
+
 def get_texttrack_url_from_page(url: str, scraper: VideoScraper) -> str:
     """
     Caso de uso: Obtener la URL de los subtítulos de una página.
@@ -143,6 +170,22 @@ def get_youtube_details(url: str, youtube_service: YouTubeService) -> dict:
     """Caso de uso: Obtener detalles de un video de YouTube."""
     return youtube_service.get_video_details(url)
 
+def get_escuelait_details(url: str, scraper: VideoScraper) -> dict:
+    """
+    Caso de uso: Obtener los detalles de un video de EscuelaIT (título, duración, miniatura).
+    Orquesta múltiples llamadas del scraper.
+    """
+    try:
+        details = scraper.get_video_details(url)
+        if not details:
+            raise VideoProcessingError("No se pudieron obtener los detalles del video de EscuelaIT.")
+        
+        # Aquí podrías añadir más lógica si fuera necesario, como validar los datos.
+        
+        return details
+    except Exception as e:
+        # Re-lanzamos la excepción para que la vista la maneje.
+        raise VideoProcessingError(f"Error al procesar la URL de EscuelaIT: {e}")
 
 
 
