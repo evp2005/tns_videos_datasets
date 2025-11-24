@@ -93,6 +93,77 @@ def upload_video(request):
 
 
 # EscuelaIT
+@api_view(['POST'])
+def get_escuelait_transcript_plain_text(request):
+    """
+    Orquesta la obtención de la transcripción en texto plano para un video de EscuelaIT.
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    
+    scraper = SeleniumVideoScraper()
+    fetcher = HTTPContentFetcher()
+    
+    try:
+        # 1. Obtener la URL del VTT
+        vtt_url = services.get_texttrack_url_from_page(url, scraper)
+        
+        # 2. Descargar el contenido del VTT
+        vtt_content = services.get_raw_content_from_url(vtt_url, fetcher)
+        
+        # 3. Convertir a texto plano
+        plain_text = text_utils.flatten_text(vtt_content)
+        
+        return Response({
+          "status": "success",
+          "result": plain_text
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({"status": "error", "message": f"Error inesperado: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
+
+@api_view(['POST'])
+def get_escuelait_transcript_vtt(request):
+    """
+    Orquesta la obtención de la transcripción en formato VTT para un video de EscuelaIT.
+    """
+    serializer = EscuelaITURLSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    url = serializer.validated_data['url']
+    
+    scraper = SeleniumVideoScraper()
+    fetcher = HTTPContentFetcher()
+    
+
+    try:
+        # 1. Obtener la URL del VTT
+        vtt_url = services.get_texttrack_url_from_page(url, scraper)
+        
+        # 2. Descargar el contenido del VTT
+        vtt_content = services.get_raw_content_from_url(vtt_url, fetcher)
+        
+        return Response({
+          "status": "success",
+          "result": vtt_content
+        })
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({"status": "error", "message": f"Error inesperado: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
+
+
 @api_view(['POST']) 
 def is_valid_escuelait_url(request):
     """

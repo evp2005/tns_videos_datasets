@@ -3,12 +3,11 @@ import json
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
+"""
 from core.services import DubbingService
 @csrf_exempt
 @require_http_methods(["POST"])
 def dub_video(request):
-    """Endpoint principal para doblaje de videos - SOLO BACKEND"""
     try:
         print("🔍 DEBUG: Iniciando dub_video...")
         print(f"📦 FILES recibidos: {list(request.FILES.keys())}")
@@ -80,7 +79,6 @@ def dub_video(request):
 
 @csrf_exempt
 def health_check(request):
-    """Endpoint de salud del servicio"""
     dubbing_service = DubbingService()
     
     return JsonResponse({
@@ -92,7 +90,6 @@ def health_check(request):
 
 @csrf_exempt
 def download_file(request, filename):
-    """Descargar archivo doblado"""
     dubbing_service = DubbingService()
     
     file_path = dubbing_service.get_output_path(filename)
@@ -110,14 +107,12 @@ def download_file(request, filename):
 
 # Funciones auxiliares para parsear multipart (de tu código original)
 def _get_boundary(content_type):
-    """Obtener boundary del content-type"""
     for part in content_type.split(';'):
         if 'boundary=' in part:
             return part.split('=')[1].strip()
     return None
 
 def _parse_multipart_form_data(body, boundary):
-    """Parsear datos multipart manualmente"""
     data = {}
     boundary_bytes = f"--{boundary}".encode()
     end_boundary_bytes = f"--{boundary}--".encode()
@@ -130,7 +125,6 @@ def _parse_multipart_form_data(body, boundary):
     return data
 
 def _parse_part(part, data):
-    """Parsear una parte del multipart"""
     headers_end = part.find(b'\r\n\r\n')
     if headers_end == -1:
         return
@@ -166,3 +160,5 @@ def _parse_part(part, data):
         name_end = content_disposition.find('"', name_start)
         name = content_disposition[name_start:name_end]
         data[name] = body.decode().strip()
+
+"""

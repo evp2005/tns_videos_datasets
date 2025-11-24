@@ -9,9 +9,9 @@ from core import services
 from core.services import VideoProcessingError
 from infrastructure.scraping.selenium_video_scraper import SeleniumVideoScraper
 from .agent import AgenteP
+from infrastructure.web.http_client import HTTPContentFetcher
 from infrastructure.web.youtube import YouTubeTranscriptService
 from utils.text_utils import get_youtube_video_id
-from .urls_extractor import extract_info_urls
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,26 +28,31 @@ def process_vtt_to_markdown_escuelait(request):
 
     escuela_it_url = serializer.validated_data['url']
 
+    scraper = SeleniumVideoScraper()
     try:
-        scraper = SeleniumVideoScraper()
-        vtt_url = services.get_texttrack_url_from_page(escuela_it_url, scraper)
+        try:
+            fetcher = HTTPContentFetcher()
+            vtt_url = services.get_texttrack_url_from_page(escuela_it_url, scraper)
 
-        vtt_content = extract_info_urls(vtt_url)
-        if "Error 410 Gone" in vtt_content:
-            raise VideoProcessingError("La URL del VTT ha expirado o no es válida (Error 410 Gone).")
+            vtt_content = services.get_raw_content_from_url(vtt_url, fetcher)
+            if not vtt_content or "Error 410 Gone" in vtt_content:
+                raise VideoProcessingError("La URL del VTT ha expirado o no es válida (Error 410 Gone).")
 
-        # 4. Inicializar y ejecutar el agente con el contenido
-        agent = AgenteP()
-        agent.set_up()
-        markdown_output = agent.query(vtt_content)
+            # 4. Inicializar y ejecutar el agente con el contenido
+            agent = AgenteP()
+            agent.set_up()
+            markdown_output = agent.query(vtt_content)
 
-        print("Markdown Output:", markdown_output) 
-        return Response({"status": "success", "result": markdown_output})
+            print("Markdown Output:", markdown_output) 
+            return Response({"status": "success", "result": markdown_output})
 
-    except VideoProcessingError as e:
-        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    except Exception as e:
-        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except VideoProcessingError as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
 
 @csrf_exempt
 @api_view(['POST'])

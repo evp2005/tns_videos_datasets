@@ -7,10 +7,8 @@ from typing import Optional
 import os
 from .domain.models import User, Video, Transcription
 
-
-
 #NUEVAS LINEAS PARA DOBLAJE
-import os
+"""
 import uuid
 import tempfile
 import shutil
@@ -20,6 +18,7 @@ from pydub import AudioSegment
 from infrastructure.dubbing.audio.whisper_adapter import WhisperAudioAdapter
 from infrastructure.dubbing.translation.google_translate_adapter import GoogleTranslateAdapter
 from infrastructure.dubbing.tts.edge_tts_adapter import EdgeTTSAdapter
+"""
 
 
 
@@ -148,7 +147,7 @@ def get_youtube_details(url: str, youtube_service: YouTubeService) -> dict:
 
 
 
-
+"""
 # DOBLAJE HFJKHSDJFHJKEHFHSEDHFS
 class DubbingService:
     def __init__(self):
@@ -160,25 +159,20 @@ class DubbingService:
         self._ensure_directories()
     
     def _ensure_directories(self):
-        """Asegurar que los directorios existan"""
         os.makedirs(self.upload_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
     
     def is_dubbing_available(self) -> bool:
-        """Verificar si el doblaje está disponible"""
         return self.audio_processor.is_available()
     
     def is_whisper_loaded(self) -> bool:
-        """Verificar si Whisper está cargado"""
         return self.audio_processor.is_whisper_loaded()
     
     def get_output_path(self, filename: str) -> str:
-        """Obtener ruta de archivo de salida"""
         return os.path.join(self.output_dir, filename)
     
     def process_dubbing(self, file_data: bytes, filename: str, source_lang: str, 
                        target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
-        """Procesar doblaje completo - Adaptado de tu código original"""
         try:
             # Guardar archivo temporalmente
             video_id = str(uuid.uuid4())
@@ -207,7 +201,6 @@ class DubbingService:
     
     def _process_dubbing_precise(self, input_path: str, output_path: str, source_lang: str, 
                                target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
-        """Doblaje preciso con segmentación temporal exacta - Tu código adaptado"""
         try:
             print("🎯 Iniciando doblaje preciso...")
             temp_dir = tempfile.mkdtemp()
@@ -292,7 +285,6 @@ class DubbingService:
             return False, {"error": str(e)}
     
     def _construir_audio_doblado(self, segmentos, output_path, duracion_total):
-        """Construir pista de audio doblada con timing exacto - Tu código original"""
         try:
             # Crear pista de silencio del mismo length que el original
             pista_final = AudioSegment.silent(duration=int(duracion_total * 1000))  # ms
@@ -331,10 +323,10 @@ class DubbingService:
             return False
     
     def _obtener_duracion_audio(self, audio_path):
-        """Obtener duración del audio - Tu código original"""
         try:
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0  # Convertir a segundos
         except Exception as e:
             print(f"⚠️  Error obteniendo duración: {e}")
             return 0
+"""
