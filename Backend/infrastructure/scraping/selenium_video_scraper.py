@@ -1,35 +1,60 @@
 from core.ports.video_scraper import VideoScraper
-from utils import selenium_utils 
+from utils import selenium_utils
+import traceback
 
 class SeleniumVideoScraper(VideoScraper):
     def __init__(self):
         self.driver = None
-    
+
+    def log(self, msg):
+        print(f"[SCRAPER-DEBUG] {msg}")
+
     def get_texttrack_url(self, url: str) -> str | None:
         try:
-            print("SCRAPER: Inicializando driver de Chrome...")
+            self.log("=== INICIO get_texttrack_url ===")
+            self.log(f"URL recibida: {url}")
+
             self.driver = selenium_utils.get_chrome_driver()
-            # Aumentamos el tiempo de espera para la carga de la página a 60 segundos
+            self.log("Driver creado correctamente")
+
             self.driver.set_page_load_timeout(60)
             self.driver.implicitly_wait(8)
 
-            print(f"SCRAPER: Navegando a la URL: {url}")
+            self.log("Navegando a la página...")
             self.driver.get(url)
-            print("SCRAPER: Página cargada correctamente.")
+            self.log("Página cargada correctamente")
 
-            print("SCRAPER: Buscando el iframe del video...")
+            self.log("Buscando iframe del video...")
             iframe = selenium_utils.get_iframe_video(self.driver)
-            print("SCRAPER: Iframe encontrado. Cambiando de contexto...")
-            self.driver.switch_to.frame(iframe)
-            print("SCRAPER: Contexto cambiado al iframe.")
+            self.log(f"Iframe encontrado: {iframe}")
 
-            print("SCRAPER: Buscando la URL del track (VTT)...")
+            self.log("Cambiando al iframe...")
+            self.driver.switch_to.frame(iframe)
+            self.log("Cambio al iframe correcto")
+
+            self.log("Buscando track VTT...")
             track_src = selenium_utils.get_track_src(self.driver)
-            print(f"SCRAPER: URL del track encontrada: {track_src}")
+            self.log(f"Track encontrado: {track_src}")
+
+            self.log("=== FIN get_texttrack_url ===")
             return track_src
+
         except Exception as e:
-            print(f"SCRAPER ERROR en get_texttrack_url: {e}")
-            raise
+            error_text = traceback.format_exc()
+            self.log("******** ERROR EN get_texttrack_url ********")
+            self.log(f"Mensaje: {str(e)}")
+            self.log("Traceback completo:")
+            self.log(error_text)
+            raise e
+
+        finally:
+            if self.driver:
+                self.log("Cerrando driver (get_texttrack_url)")
+                try:
+                    self.driver.quit()
+                except:
+                    self.log("Error cerrando el driver (ignorado)")
+
 
     def get_m3u8_url(self, url: str) -> str | None:
         try:
