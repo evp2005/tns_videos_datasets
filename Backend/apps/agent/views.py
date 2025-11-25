@@ -43,7 +43,6 @@ def process_vtt_to_markdown_escuelait(request):
             agent.set_up()
             markdown_output = agent.query(vtt_content)
 
-            print("Markdown Output:", markdown_output) 
             return Response({"status": "success", "result": markdown_output})
 
         except VideoProcessingError as e:
@@ -82,7 +81,6 @@ def process_vtt_to_markdown_youtube(request):
         agent.set_up()
         markdown_output = agent.query(vtt_content)
 
-        print("Markdown Output:", markdown_output)  
         return Response({"status": "success", "result": markdown_output})
 
     except VideoProcessingError as e:

@@ -68,25 +68,31 @@ def get_videos(request):
 @csrf_exempt
 def upload_video(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        user_repo = DjangoUserRepository()
-        video_repo = DjangoVideoRepository()
         try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Cuerpo de la petición inválido o mal formateado."}, status=400)
+
+        required_fields = ["title", "origin_video", "duration", "language", "url_video", "user_id"]
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return JsonResponse({"error": f"Faltan campos requeridos: {', '.join(missing_fields)}"}, status=400)
+
+        try:
+            user_repo = DjangoUserRepository()
+            video_repo = DjangoVideoRepository()
             vid = services.create_video(
                 title=data["title"],
                 origin_video=data["origin_video"],
                 duration=data["duration"],
                 language=data["language"],
                 url_video=data["url_video"],
-                miniature=data.get("miniature"),  # ← agregado
+                miniature=data.get("miniature"),
                 user_id=data["user_id"],
-
                 user_repo=user_repo,
                 video_repo=video_repo
             )
             return JsonResponse({"mensaje": "Video subido con exito", "id": vid.id})
-        except UserCreationError as e: # Si el usuario no existe
-            return JsonResponse({"error": str(e)}, status=400)
         except Exception as e:
             return JsonResponse({"error": "Error al subir el video: " + str(e)}, status=500)
     return JsonResponse({"error": "Método no permitido"}, status=405)
@@ -112,6 +118,7 @@ def get_escuelait_thumbnail(request):
             "result": thumbnail_url
         })
     except VideoProcessingError as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if scraper and scraper.driver:
@@ -136,6 +143,7 @@ def get_escuelait_title(request):
             "result": title_url
         })
     except VideoProcessingError as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if scraper and scraper.driver:
@@ -160,6 +168,7 @@ def get_escuelait_duration(request):
             "result": duration_url
         })
     except VideoProcessingError as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if scraper and scraper.driver:
@@ -185,7 +194,11 @@ def get_escuelait_video_details(request):
         }, status=status.HTTP_200_OK)
     
     except (VideoProcessingError, Exception) as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if scraper and scraper.driver:
+            scraper.driver.quit()
 
 
 @api_view(['POST'])
@@ -217,8 +230,10 @@ def get_escuelait_transcript_plain_text(request):
           "result": plain_text
         })
     except VideoProcessingError as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": f"Error inesperado: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if scraper and scraper.driver:
@@ -251,8 +266,10 @@ def get_escuelait_transcript_vtt(request):
           "result": vtt_content
         })
     except VideoProcessingError as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
+        scraper.driver.quit()
         return Response({"status": "error", "message": f"Error inesperado: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if scraper and scraper.driver:

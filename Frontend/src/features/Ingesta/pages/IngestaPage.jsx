@@ -54,7 +54,7 @@ function IngestaPage() {
 
       const videoData = {
         title: info.title,
-        duration: info.duration,
+        duration: info.duration || info.duration_string,
         origin_video: originInput,
         url_video: videoInput,
         state: "Pending",
