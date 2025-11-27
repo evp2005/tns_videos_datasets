@@ -1,14 +1,20 @@
 from rest_framework import serializers
 
-class GenerateClipsSerializer(serializers.Serializer):
+class SegmentSerializer(serializers.Serializer):
     """
-    Valida los datos para generar clips de video.
+    Serializer para un único segmento de video, con título, inicio y fin.
     """
-    minutes_json = serializers.JSONField()
-    video_path = serializers.CharField(max_length=500)
-    output_name = serializers.CharField(max_length=255)
+    title = serializers.CharField()
+    start = serializers.CharField()
+    end = serializers.CharField()
 
-    def validate_video_path(self, value):
-        # Podríamos validar si el archivo existe aquí, pero el método generate_clips ya lo hace.
-        # Dejaremos que el método maneje la existencia del archivo para mantener la lógica allí.
-        return value
+class VideoSegmentationSerializer(serializers.Serializer):
+    """
+    Serializer para la solicitud de segmentación de video.
+    Valida la URL del video y una lista de segmentos.
+    """
+    video_url = serializers.URLField()
+    video_title = serializers.CharField(max_length=255)
+    segments = serializers.ListField(
+        child=SegmentSerializer()
+    )
