@@ -3,6 +3,8 @@ import { useLocation, Link } from "react-router-dom";
 import Panel from "../../../Components/Panel";
 import Completado from "../../../Components/Estados/Completado";
 import { FaRegCheckCircle } from "react-icons/fa";
+
+
 import {
   getTranscriptPlainText,
   getTranscriptSRT,
@@ -30,6 +32,21 @@ function TranscripcionPage() {
   // 4 = texto final
 
   // === OBTENER TRANSCRIPCIÓN ===
+  const prepareDataForSegmentation = () => {
+    return {
+      video: video,
+      transcriptions: {
+        txt: texto.replaceAll("<br/>", "\n"),
+        srt: textoSRT.replaceAll("<br/>", "\n"),
+        markdown: textoMarkdown.replaceAll("<br/>", "\n")
+      }
+    };
+  };
+  useEffect(() => {
+    if (location.state?.video) {
+      sessionStorage.setItem('currentVideo', JSON.stringify(location.state.video));
+    }
+  }, [location.state?.video]);
   const fetchTranscript = async () => {
     if (!video?.url_video) return;
 
@@ -314,41 +331,36 @@ function TranscripcionPage() {
                 {/* Extracción */}
                 <div className="flex flex-col items-center">
                   <FaRegCheckCircle
-                    className={`text-5xl ${
-                      stage >= 1 ? "text-[#00CB07]" : "text-gray-300"
-                    }`}
+                    className={`text-5xl ${stage >= 1 ? "text-[#00CB07]" : "text-gray-300"
+                      }`}
                   />
                   <span className="font-bold">Extracción</span>
                 </div>
 
                 <div
-                  className={`border-b-4 ${
-                    stage >= 2 ? "border-[#3ECC72]" : "border-gray-300"
-                  } w-64 2xl:w-96`}
+                  className={`border-b-4 ${stage >= 2 ? "border-[#3ECC72]" : "border-gray-300"
+                    } w-64 2xl:w-96`}
                 ></div>
 
                 {/* Limpieza */}
                 <div className="flex flex-col items-center">
                   <FaRegCheckCircle
-                    className={`text-5xl ${
-                      stage >= 2 ? "text-[#00CB07]" : "text-gray-300"
-                    }`}
+                    className={`text-5xl ${stage >= 2 ? "text-[#00CB07]" : "text-gray-300"
+                      }`}
                   />
                   <span className="font-bold">Limpieza</span>
                 </div>
 
                 <div
-                  className={`border-b-4 ${
-                    stage >= 3 ? "border-[#3ECC72]" : "border-gray-300"
-                  } w-64 2xl:w-96`}
+                  className={`border-b-4 ${stage >= 3 ? "border-[#3ECC72]" : "border-gray-300"
+                    } w-64 2xl:w-96`}
                 ></div>
 
                 {/* Alineación */}
                 <div className="flex flex-col items-center">
                   <FaRegCheckCircle
-                    className={`text-5xl ${
-                      stage >= 3 ? "text-[#00CB07]" : "text-gray-300"
-                    }`}
+                    className={`text-5xl ${stage >= 3 ? "text-[#00CB07]" : "text-gray-300"
+                      }`}
                   />
                   <span className="font-bold">Alineación</span>
                 </div>
@@ -374,31 +386,28 @@ function TranscripcionPage() {
                   <div className="flex w-full gap-2 mt-4 mb-4">
                     <button
                       onClick={() => handleFormatoChange("TXT")}
-                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${
-                        formatoSeleccionado === "TXT"
-                          ? "bg-[#224DB3] text-white"
-                          : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
-                      }`}
+                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${formatoSeleccionado === "TXT"
+                        ? "bg-[#224DB3] text-white"
+                        : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
+                        }`}
                     >
                       TXT
                     </button>
                     <button
                       onClick={() => handleFormatoChange("SRT/VTT")}
-                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${
-                        formatoSeleccionado === "SRT/VTT"
-                          ? "bg-[#224DB3] text-white"
-                          : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
-                      }`}
+                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${formatoSeleccionado === "SRT/VTT"
+                        ? "bg-[#224DB3] text-white"
+                        : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
+                        }`}
                     >
                       SRT/VTT
                     </button>
                     <button
                       onClick={() => handleFormatoChange("Markdown")}
-                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${
-                        formatoSeleccionado === "Markdown"
-                          ? "bg-[#224DB3] text-white"
-                          : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
-                      }`}
+                      className={`px-6 w-56 py-2 rounded-lg font-medium transition-all ${formatoSeleccionado === "Markdown"
+                        ? "bg-[#224DB3] text-white"
+                        : "bg-[#FAFAF7] text-gray-700 border-2 border-[#EEEFEF] hover:bg-gray-100"
+                        }`}
                     >
                       Markdown
                     </button>
@@ -413,8 +422,8 @@ function TranscripcionPage() {
                           {stage === 1
                             ? "Extracción…"
                             : stage === 2
-                            ? "Limpieza…"
-                            : "Alineación…"}
+                              ? "Limpieza…"
+                              : "Alineación…"}
                         </p>
                       </div>
                     )}
@@ -515,7 +524,10 @@ function TranscripcionPage() {
                     </div>
 
                     <div className="flex flex-col gap-3 px-5 mb-5">
-                      <Link to="/segmentación">
+                      <Link
+                        to="/segmentacion"
+                        state={prepareDataForSegmentation()}
+                      >
                         <button className="border-[#EEEFEF] border-2 rounded-lg flex justify-center items-center h-8 text-sm font-semibold py-1 w-full">
                           Enviar a segmentación
                         </button>

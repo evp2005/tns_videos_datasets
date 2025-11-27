@@ -1,81 +1,119 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Panel from '../../../Components/Panel';
-import Dropdown from '../../../Components/Dropdown/Dropdown';
-import { FaArrowLeft, FaYoutube } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import { LuSparkles } from "react-icons/lu";
 import { Select, Table } from 'antd';
 
-
-
 function SegmentacionPage() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { video, transcriptions } = location.state || {};
+
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [numeroSegmentos, setNumeroSegmentos] = useState('8');
-    const [dropdownAbierto, setDropdownAbierto] = useState(null);
+    const [segmentos, setSegmentos] = useState([]);
+    const [segmentosMostrados, setSegmentosMostrados] = useState([]);
 
-    // Datos base de segmentos
-    const todosLosSegmentos = [
-        { key: 1, tema: "Introducción a React Hooks", inicio: "00:00", fin: "05:30", importancia: "Alta" },
-        { key: 2, tema: "¿Qué es useState?", inicio: "05:30", fin: "12:15", importancia: "Alta" },
-        { key: 3, tema: "Ejemplos prácticos de useState", inicio: "12:15", fin: "18:45", importancia: "Alta" },
-        { key: 4, tema: "Introducción a useEffect", inicio: "18:45", fin: "25:00", importancia: "Alta" },
-        { key: 5, tema: "Ciclo de vida con useEffect", inicio: "25:00", fin: "32:00", importancia: "Alta" },
-        { key: 6, tema: "Hooks personalizados", inicio: "32:00", fin: "38:00", importancia: "Media" },
-        { key: 7, tema: "Mejores prácticas", inicio: "38:00", fin: "42:00", importancia: "Media" },
-        { key: 8, tema: "Conclusión y recursos", inicio: "42:00", fin: "45:00", importancia: "Baja" },
-    ];
+    // 🔥 FUNCIÓN PARA EXTRAER CAPÍTULOS DEL MARKDOWN
+    const extraerCapitulosDeMarkdown = (markdownText) => {
+        if (!markdownText) return [];
 
-    // Estado para manejar cambios en importancia
-    const [segmentos, setSegmentos] = useState(todosLosSegmentos);
+        const lineas = markdownText.split('\n');
+        const capitulos = [];
+        let numeroCapitulo = 0;
 
-    // Segmentos filtrados según número seleccionado
-    const segmentosMostrados = segmentos.slice(0, parseInt(numeroSegmentos));
+        lineas.forEach((linea, index) => {
+            // Buscar líneas que contienen "**Capítulo X:"
+            const capituloMatch = linea.match(/\*\*Capítulo\s+(\d+):\s*(.+?)\*\*/);
 
-    // Función para cambiar número de segmentos
+            if (capituloMatch) {
+                numeroCapitulo++;
+                const titulo = capituloMatch[2].trim();
+
+                // Buscar inicio y fin en las siguientes líneas
+                let inicio = '';
+                let fin = '';
+
+                for (let i = index + 1; i < Math.min(index + 5, lineas.length); i++) {
+                    const siguienteLinea = lineas[i].trim();
+
+                    // Buscar **Inicio:** 00:00:00.000
+                    const inicioMatch = siguienteLinea.match(/\*\*Inicio:\*\*\s*(\d{2}:\d{2}:\d{2}\.\d{3})/);
+                    if (inicioMatch) {
+                        inicio = inicioMatch[1].substring(0, 8); // Solo HH:MM:SS
+                    }
+
+                    // Buscar **Final:** 00:00:00.000
+                    const finMatch = siguienteLinea.match(/\*\*Final:\*\*\s*(\d{2}:\d{2}:\d{2}\.\d{3})/);
+                    if (finMatch) {
+                        fin = finMatch[1].substring(0, 8); // Solo HH:MM:SS
+                    }
+                }
+
+                capitulos.push({
+                    key: numeroCapitulo - 1,
+                    numero: numeroCapitulo,
+                    tema: titulo,
+                    inicio: inicio || '00:00:00',
+                    fin: fin || '00:00:00'
+                });
+            }
+        });
+
+        return capitulos;
+    };
+
+    // 🔥 EXTRAER CAPÍTULOS AL CARGAR
+    useEffect(() => {
+        if (transcriptions?.markdown) {
+            const capitulosExtraidos = extraerCapitulosDeMarkdown(transcriptions.markdown);
+            setSegmentos(capitulosExtraidos);
+
+            // Mostrar según el número seleccionado
+            const cantidad = parseInt(numeroSegmentos);
+            const mostrar = capitulosExtraidos.slice(0, cantidad);
+            setSegmentosMostrados(mostrar);
+
+            // Seleccionar todos por defecto
+            setSelectedRowKeys(mostrar.map(s => s.key));
+        }
+    }, [transcriptions?.markdown]);
+
+    // Actualizar segmentos mostrados cuando cambie el número
+    useEffect(() => {
+        const cantidad = parseInt(numeroSegmentos);
+        const mostrar = segmentos.slice(0, cantidad);
+        setSegmentosMostrados(mostrar);
+    }, [numeroSegmentos, segmentos]);
+
     const handleNumeroSegmentosChange = (value) => {
         setNumeroSegmentos(value);
         const maxKey = parseInt(value);
-        setSelectedRowKeys(prev => prev.filter(key => key <= maxKey));
+        setSelectedRowKeys(prev => prev.filter(key => key < maxKey));
     };
 
-    // Función para cambiar importancia
-    const handleImportanciaChange = (key, nuevaImportancia) => {
-        setSegmentos(prevSegmentos =>
-            prevSegmentos.map(segmento =>
-                segmento.key === key
-                    ? { ...segmento, importancia: nuevaImportancia }
-                    : segmento
-            )
-        );
+    // Función para volver a transcripción
+    const handleVolverTranscripcion = () => {
+        navigate('/transcripcion', { state: { video } });
     };
 
-    // Cerrar dropdown al hacer clic fuera o al hacer scroll
-    useEffect(() => {
-        const handleClickOutside = () => {
-            setDropdownAbierto(null);
-        };
-
-        const handleScroll = () => {
-            setDropdownAbierto(null);
-        };
-
-        if (dropdownAbierto) {
-            document.addEventListener('click', handleClickOutside);
-            window.addEventListener('scroll', handleScroll, true);
-        }
-
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-            window.removeEventListener('scroll', handleScroll, true);
-        };
-    }, [dropdownAbierto]);
-
-    // Configuración de las columnas de la tabla
     const columns = [
+        {
+            title: '#',
+            dataIndex: 'numero',
+            key: 'numero',
+            width: 60,
+            align: 'center',
+            render: (text) => (
+                <span className='text-sm text-gray-900 font-medium'>{text}</span>
+            ),
+        },
         {
             title: 'Tema',
             dataIndex: 'tema',
             key: 'tema',
-            width: '45%',
+            width: '50%',
             render: (text) => (
                 <span className='text-sm text-gray-900 font-medium'>{text}</span>
             ),
@@ -99,29 +137,12 @@ function SegmentacionPage() {
             render: (text) => (
                 <span className='text-sm text-gray-700 font-mono font-medium'>{text}</span>
             ),
-        },
-        {
-            title: 'Importancia',
-            dataIndex: 'importancia',
-            key: 'importancia',
-            width: '20%',
-            align: 'center',
-            render: (importancia, record) => (
-                <Dropdown
-                    importancia={importancia}
-                    record={record}
-                    dropdownAbierto={dropdownAbierto}
-                    setDropdownAbierto={setDropdownAbierto}
-                    handleImportanciaChange={handleImportanciaChange}
-                />
-            ),
-        },
+        }
     ];
 
-    // Configuración de selección de filas
     const rowSelection = {
         selectedRowKeys,
-        onChange: (selectedRowKeys, selectedRows) => {
+        onChange: (selectedRowKeys) => {
             setSelectedRowKeys(selectedRowKeys);
         },
         getCheckboxProps: (record) => ({
@@ -132,15 +153,7 @@ function SegmentacionPage() {
     const estadisticas = {
         segmentosTotales: segmentosMostrados.length,
         seleccionados: selectedRowKeys.length,
-        altaImportancia: selectedRowKeys.filter(key => {
-            const segmento = segmentosMostrados.find(s => s.key === key);
-            return segmento?.importancia === 'Alta';
-        }).length,
-        mediaImportancia: selectedRowKeys.filter(key => {
-            const segmento = segmentosMostrados.find(s => s.key === key);
-            return segmento?.importancia === 'Media';
-        }).length,
-        duracionEstimada: "~52 min"
+        duracionEstimada: "~" + segmentosMostrados.length * 5 + " min"
     };
 
     return (
@@ -169,7 +182,10 @@ function SegmentacionPage() {
                                         <h2 className='text-xl font-semibold text-gray-900 mb-2'>Material a Segmentar</h2>
                                         <p className='text-gray-600'>Video y transcripción recibidos desde Transcripción</p>
                                     </div>
-                                    <button className='flex items-center gap-3 px-5 py-1 border-2 border-[#EEEFEF] bg-[#FAFAF7] text-[#333333] hover:bg-[#f0f0f0] rounded-lg transition-colors text-sm font-medium'>
+                                    <button
+                                        onClick={handleVolverTranscripcion}
+                                        className='flex items-center gap-3 px-5 py-1 border-2 border-[#EEEFEF] bg-[#FAFAF7] text-[#333333] hover:bg-[#f0f0f0] rounded-lg transition-colors text-sm font-medium'
+                                    >
                                         <FaArrowLeft className='text-sm' />
                                         Volver a Transcripción
                                     </button>
@@ -179,18 +195,31 @@ function SegmentacionPage() {
                                     {/* Video Original */}
                                     <div>
                                         <h3 className='font-semibold text-gray-900 mb-6'>Video Original</h3>
-                                        <div className='bg-[#D9D9D9] rounded-lg h-44 mb-6'></div>
-                                        <p className='text-gray-900 font-medium mb-3'>Introducción a React Hooks - Tutorial Completo</p>
+                                        <div className='bg-[#D9D9D9] rounded-lg h-44 mb-6 overflow-hidden'>
+                                            {video?.miniature ? (
+                                                <img
+                                                    src={video.miniature}
+                                                    alt={video.title || "Video thumbnail"}
+                                                    className='w-full h-full object-cover'
+                                                />
+                                            ) : null}
+                                        </div>
+                                        <p className='text-gray-900 font-medium mb-3'>
+                                            {video?.title || 'Sin título'}
+                                        </p>
                                         <div className='flex items-center gap-3'>
                                             <div className='flex items-center gap-2'>
-                                                <FaYoutube className='text-red-500 text-sm' />
-                                                <span className='text-sm text-gray-600'>YouTube</span>
+                                                <span className='text-sm text-gray-600'>
+                                                    {video?.origin_video || 'Fuente desconocida'}
+                                                </span>
                                             </div>
                                             <div className='flex items-center gap-2'>
                                                 <div className='w-4 h-4 rounded-full border-2 border-gray-400 flex items-center justify-center'>
                                                     <div className='w-1 h-1 bg-gray-400 rounded-full'></div>
                                                 </div>
-                                                <span className='text-sm text-gray-600'>45:32</span>
+                                                <span className='text-sm text-gray-600'>
+                                                    {video?.duration || '00:00'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -202,19 +231,21 @@ function SegmentacionPage() {
                                             <div className='space-y-4'>
                                                 <div className='flex justify-between items-center'>
                                                     <span className='text-gray-600 font-medium'>Formato:</span>
-                                                    <span className='text-gray-900 font-semibold'>SRT</span>
+                                                    <span className='text-gray-900 font-semibold'>Markdown</span>
                                                 </div>
                                                 <div className='flex justify-between items-center'>
                                                     <span className='text-gray-600 font-medium'>Idioma:</span>
-                                                    <span className='text-gray-900 font-semibold'>Español</span>
+                                                    <span className='text-gray-900 font-semibold'>
+                                                        {video?.language || 'Español'}
+                                                    </span>
                                                 </div>
                                                 <div className='flex justify-between items-center'>
-                                                    <span className='text-gray-600 font-medium'>Segmentos:</span>
-                                                    <span className='text-gray-900 font-semibold'>156</span>
+                                                    <span className='text-gray-600 font-medium'>Capítulos:</span>
+                                                    <span className='text-gray-900 font-semibold'>{segmentos.length}</span>
                                                 </div>
                                                 <div className='flex justify-between items-center'>
                                                     <span className='text-gray-600 font-medium'>Generado:</span>
-                                                    <span className='text-gray-900 font-semibold'>2025-03-03 15:45</span>
+                                                    <span className='text-gray-900 font-semibold'>{video?.uploaded_at || 'N/A'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -231,45 +262,71 @@ function SegmentacionPage() {
                                     <div className='bg-white rounded-xl shadow-sm border border-gray-200 p-8'>
                                         <div className='flex items-center gap-2 mb-6'>
                                             <LuSparkles className='text-blue-600 text-xl' />
-                                            <h3 className='text-xl font-semibold text-gray-900'>Índice Temático (IA)</h3>
+                                            <h3 className='text-xl font-semibold text-gray-900'>Índice Temático (Markdown)</h3>
                                         </div>
-                                        <p className='text-gray-600 mb-6'>Segmentos sugeridos basados en el análisis del contenido transcrito</p>
+                                        <p className='text-gray-600 mb-6'>
+                                            Capítulos extraídos automáticamente de la transcripción en formato Markdown
+                                            {video && (
+                                                <span className='ml-2 text-blue-600 text-xs'>
+                                                    (Video ID: {video.id || video.video_id})
+                                                </span>
+                                            )}
+                                        </p>
 
-                                        <div className='flex items-center gap-4 mb-6'>
-                                            <span className='text-sm font-medium text-gray-900'>Número de segmentos:</span>
-                                            <Select
-                                                value={numeroSegmentos}
-                                                onChange={handleNumeroSegmentosChange}
-                                                style={{ width: 140 }}
-                                                options={[
-                                                    { value: '4', label: '4 Segmentos' },
-                                                    { value: '6', label: '6 Segmentos' },
-                                                    { value: '8', label: '8 Segmentos' }
-                                                ]}
-                                            />
-                                            <span className='text-sm text-gray-500'>({selectedRowKeys.length} Seleccionados)</span>
-                                        </div>
+                                        {/* Mostrar si no hay Markdown */}
+                                        {!transcriptions?.markdown ? (
+                                            <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6'>
+                                                <p className='text-yellow-800'>
+                                                    ⚠️ No hay transcripción en formato Markdown disponible.
+                                                    Por favor, genera la transcripción en Markdown desde la página de Transcripción.
+                                                </p>
+                                            </div>
+                                        ) : segmentos.length === 0 ? (
+                                            <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
+                                                <p className='text-blue-800'>
+                                                    ℹ️ No se encontraron capítulos en el Markdown. Asegúrate de que la transcripción tenga el formato correcto con **Capítulo X:**
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className='flex items-center gap-4 mb-6'>
+                                                    <span className='text-sm font-medium text-gray-900'>Mostrar primeros:</span>
+                                                    <Select
+                                                        value={numeroSegmentos}
+                                                        onChange={handleNumeroSegmentosChange}
+                                                        style={{ width: 140 }}
+                                                        options={[
+                                                            { value: '4', label: '4 Capítulos' },
+                                                            { value: '6', label: '6 Capítulos' },
+                                                            { value: '8', label: '8 Capítulos' },
+                                                            { value: String(segmentos.length), label: `Todos (${segmentos.length})` }
+                                                        ]}
+                                                    />
+                                                    <span className='text-sm text-gray-500'>({selectedRowKeys.length} Seleccionados)</span>
+                                                </div>
 
-                                        {/* Tabla de Segmentos */}
-                                        <Table
-                                            rowSelection={{
-                                                type: 'checkbox',
-                                                ...rowSelection,
-                                            }}
-                                            columns={columns}
-                                            dataSource={segmentosMostrados}
-                                            pagination={false}
-                                            size="middle"
-                                            className="segments-table"
-                                            rowClassName="segment-row"
-                                        />
+                                                {/* Tabla de Segmentos */}
+                                                <Table
+                                                    rowSelection={{
+                                                        type: 'checkbox',
+                                                        ...rowSelection,
+                                                    }}
+                                                    columns={columns}
+                                                    dataSource={segmentosMostrados}
+                                                    pagination={false}
+                                                    size="middle"
+                                                    className="segments-table"
+                                                    rowClassName="segment-row"
+                                                />
 
-                                        {/* Sugerencia */}
-                                        <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
-                                            <p className='text-sm text-blue-800'>
-                                                <span className='font-semibold'>Sugerencia:</span> Los segmentos marcados como "Alta importancia" son esenciales para entender el contenido. Los de "Baja importancia" pueden omitirse para crear versiones más cortas.
-                                            </p>
-                                        </div>
+                                                {/* Sugerencia */}
+                                                <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                                                    <p className='text-sm text-blue-800'>
+                                                        <span className='font-semibold'>📌 Info:</span> Los capítulos se extrajeron automáticamente del Markdown. Puedes seleccionar los que desees para generar clips individuales.
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
@@ -281,14 +338,23 @@ function SegmentacionPage() {
                                         <p className='text-sm text-gray-600 mb-6'>Generar segmentos</p>
 
                                         <div className='space-y-3'>
-                                            <button className='w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium'>
-                                                Generar Clips
+                                            <button
+                                                className='w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed'
+                                                disabled={selectedRowKeys.length === 0}
+                                            >
+                                                Generar {selectedRowKeys.length} Clips
                                             </button>
-                                            <button className='w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50'>
-                                                Restablecer Seleccionados
+                                            <button
+                                                className='w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50'
+                                                onClick={() => setSelectedRowKeys(segmentosMostrados.map(s => s.key))}
+                                            >
+                                                Seleccionar Todos
                                             </button>
-                                            <button className='w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50'>
-                                                Regenerar Índice con IA
+                                            <button
+                                                className='w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50'
+                                                onClick={() => setSelectedRowKeys([])}
+                                            >
+                                                Limpiar Selección
                                             </button>
                                         </div>
                                     </div>
@@ -299,20 +365,16 @@ function SegmentacionPage() {
 
                                         <div className='space-y-4 text-sm'>
                                             <div className='flex justify-between'>
-                                                <span className='text-gray-600'>Segmentos totales:</span>
+                                                <span className='text-gray-600'>Capítulos totales:</span>
+                                                <span className='font-medium'>{segmentos.length}</span>
+                                            </div>
+                                            <div className='flex justify-between'>
+                                                <span className='text-gray-600'>Mostrados:</span>
                                                 <span className='font-medium'>{estadisticas.segmentosTotales}</span>
                                             </div>
                                             <div className='flex justify-between'>
                                                 <span className='text-gray-600'>Seleccionados:</span>
-                                                <span className='font-medium'>{estadisticas.seleccionados}</span>
-                                            </div>
-                                            <div className='flex justify-between'>
-                                                <span className='text-gray-600'>Alta importancia:</span>
-                                                <span className='font-medium text-green-600'>{estadisticas.altaImportancia}</span>
-                                            </div>
-                                            <div className='flex justify-between'>
-                                                <span className='text-gray-600'>Media importancia:</span>
-                                                <span className='font-medium text-orange-600'>{estadisticas.mediaImportancia}</span>
+                                                <span className='font-medium text-blue-600'>{estadisticas.seleccionados}</span>
                                             </div>
                                             <div className='flex justify-between'>
                                                 <span className='text-gray-600'>Duración estimada:</span>
@@ -323,58 +385,18 @@ function SegmentacionPage() {
                                 </div>
                             </div>
 
-                            {/* Timeline Visual - Mismo ancho que Índice Temático */}
-                            <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8'>
-                                <div className='lg:col-span-2'>
-                                    <div className='bg-white rounded-xl shadow-sm border border-gray-200 p-8'>
-                                        <h3 className='text-xl font-semibold text-gray-900 mb-2'>Timeline Visual</h3>
-                                        <p className='text-gray-600 mb-6'>Visualización de los segmentos seleccionados</p>
-
-                                        <div className='mb-6'>
-                                            <div className='flex justify-between text-sm text-gray-600 mb-4'>
-                                                <span>00:00</span>
-                                                <span>22:46</span>
-                                                <span>45:32</span>
-                                            </div>
-
-                                            <div className='flex gap-1 mb-6'>
-                                                {segmentosMostrados.map((segmento, index) => {
-                                                    const isSelected = selectedRowKeys.includes(segmento.key);
-                                                    const colorClass = isSelected
-                                                        ? segmento.importancia === 'Alta' ? 'bg-green-500'
-                                                            : segmento.importancia === 'Media' ? 'bg-orange-400'
-                                                                : 'bg-gray-400'
-                                                        : 'bg-gray-200';
-
-                                                    return (
-                                                        <div
-                                                            key={segmento.key}
-                                                            className={`flex-1 h-12 ${colorClass} flex items-center justify-center text-white font-medium text-sm first:rounded-l-lg last:rounded-r-lg`}
-                                                        >
-                                                            {isSelected ? index + 1 : ''}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-
-                                        <div className='flex gap-6 text-sm'>
-                                            <div className='flex items-center gap-2'>
-                                                <div className='w-3 h-3 bg-green-500 rounded-sm'></div>
-                                                <span>Alta importancia</span>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
-                                                <div className='w-3 h-3 bg-orange-400 rounded-sm'></div>
-                                                <span>Media importancia</span>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
-                                                <div className='w-3 h-3 bg-gray-400 rounded-sm'></div>
-                                                <span>Baja importancia</span>
-                                            </div>
-                                        </div>
+                            {/* Preview del Markdown (opcional) */}
+                            {transcriptions?.markdown && (
+                                <div className='mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6'>
+                                    <h4 className='font-semibold mb-4 text-gray-900'>Preview de la Transcripción Markdown</h4>
+                                    <div className='bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto border border-gray-200'>
+                                        <pre className='text-sm whitespace-pre-wrap text-gray-700'>
+                                            {transcriptions.markdown.substring(0, 2000)}
+                                            {transcriptions.markdown.length > 2000 && '...'}
+                                        </pre>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </section>
