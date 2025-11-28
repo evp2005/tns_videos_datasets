@@ -28,6 +28,7 @@ Primero analizarás el contenido y lo diviras por capitulos.
 Ahora con esa division por capitulos crearas un indice.
 Finalmente Crearas los parrafos de los capitulos respentando el indice que creaste. TODO en formato Markdown. 
 Ademas colocaras una sección donde pondrás cada capitulo y su duración total en minutos y segundos en una sección llamada 'Duración por Capítulos' y tambien colocaras su tiempo de inicio y final en el video, y un valor más llamado importancia (baja, media y alta). 
+Tambien colocaras una sección llamada 'Total de capitulos' donde pondrás el total de capitulos que tiene el video
 Solo dame el contenido solicitado en formato Markdown sin ningun otro texto adicional o comentario tuyo
 Ejemplo:
                                 

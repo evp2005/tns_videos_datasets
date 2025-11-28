@@ -13,6 +13,7 @@ from .serializers import VideoSegmentationSerializer
 from core import services
 from core.services import VideoProcessingError, get_m3u8_url_from_page
 from infrastructure.scraping.selenium_video_scraper import SeleniumVideoScraper
+from infrastructure.web.youtube import YouTubeTranscriptService
 from .agent import AgenteP
 from infrastructure.web.http_client import HTTPContentFetcher
 from infrastructure.web.youtube import YouTubeTranscriptService
@@ -123,7 +124,8 @@ def generate_clips_endpoint(request):
 
 @csrf_exempt
 @api_view(['POST'])
-def segment_video(request):
+def segment_video_escuelait(request):
+
     """
     Endpoint para segmentar un video de EscuelaIT basado en una lista de tiempos.
     Descarga el video completo, lo corta en segmentos y devuelve un archivo ZIP.
@@ -133,7 +135,7 @@ def segment_video(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     data = serializer.validated_data
-    video_url = data['video_url']
+    video_url = data['url']  # CORRECCIÓN: Usar 'url' para ser consistente con el endpoint de YouTube.
     video_title = data['video_title']
     segments = data['segments']
     scraper = SeleniumVideoScraper()
@@ -230,6 +232,98 @@ def segment_video(request):
     finally:
         # --- PASO 6: Limpieza ---
         # Nos aseguramos de borrar el directorio temporal y todo su contenido
+        if os.path.exists(temp_dir):
+            print(f"Limpiando directorio temporal: {temp_dir}")
+            shutil.rmtree(temp_dir)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def segment_video_youtube(request):
+    """
+    Endpoint para segmentar un video de YouTube basado en una lista de tiempos.
+    Descarga el video completo, lo corta en segmentos y devuelve un archivo ZIP.
+    """
+    serializer = VideoSegmentationSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    data = serializer.validated_data
+    url = data['url']
+    video_title = data['video_title']
+    segments = data['segments']
+
+    temp_dir = tempfile.mkdtemp()
+
+    try:
+        # --- PASO 1: Obtener la URL de descarga usando Pytube ---
+        youtube_service = YouTubeTranscriptService()
+        download_url = youtube_service.get_download_url(url)
+
+        if not download_url:
+            raise VideoProcessingError("No se pudo obtener una URL de descarga para el video de YouTube.")
+
+        # --- PASO 2: Descargar el video completo usando FFmpeg ---
+        full_video_path = os.path.join(temp_dir, 'full_video.mp4')
+        print(f"Descargando video de YouTube desde {download_url} a {full_video_path}")
+
+        # Para YouTube, generalmente no se necesitan cabeceras complejas,
+        # pero añadir un User-Agent es una buena práctica.
+        subprocess.run(
+            ['ffmpeg',
+             '-user_agent', "Mozilla/5.0", # User-Agent genérico
+             '-i', download_url,
+             '-c', 'copy', full_video_path],
+            check=True, capture_output=True, text=True
+        )
+
+        # --- PASO 3: Cortar el video en segmentos (LÓGICA IDÉNTICA) ---
+        clip_paths = []
+        for i, segment in enumerate(segments):
+            start_time = segment['start']
+            end_time = segment['end']
+            safe_title = "".join([c for c in segment['title'] if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+            output_filename = f"{i+1:02d} - {safe_title}.mp4"
+            output_path = os.path.join(temp_dir, output_filename)
+
+            print(f"Cortando segmento: {start_time} -> {end_time} en {output_path}")
+
+            subprocess.run(
+                ['ffmpeg', '-i', full_video_path, '-ss', start_time, '-to', end_time, '-c', 'copy', output_path],
+                check=True, capture_output=True, text=True
+            )
+            clip_paths.append(output_path)
+
+        # --- PASO 4: Crear el archivo ZIP (LÓGICA IDÉNTICA) ---
+        safe_video_title = "".join([c for c in video_title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+        zip_filename = f"{safe_video_title}.zip"
+        zip_path = os.path.join(temp_dir, zip_filename)
+        
+        print(f"Creando archivo ZIP en {zip_path}")
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for clip_path in clip_paths:
+                zipf.write(clip_path, os.path.basename(clip_path))
+
+        # --- PASO 5: Enviar el ZIP como respuesta (LÓGICA IDÉNTICA) ---
+        if os.path.exists(zip_path):
+            with open(zip_path, 'rb') as f:
+                response = HttpResponse(f.read(), content_type='application/zip')
+                response['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
+                return response
+        else:
+            raise VideoProcessingError("No se pudo crear el archivo ZIP.")
+
+    except subprocess.CalledProcessError as e:
+        error_message = f"Error durante el procesamiento con FFmpeg: {e.stderr}"
+        print(error_message)
+        return Response({"status": "error", "message": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except VideoProcessingError as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    finally:
+        # --- PASO 6: Limpieza (LÓGICA IDÉNTICA) ---
         if os.path.exists(temp_dir):
             print(f"Limpiando directorio temporal: {temp_dir}")
             shutil.rmtree(temp_dir)

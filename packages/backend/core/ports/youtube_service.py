@@ -16,3 +16,8 @@ class YouTubeService(ABC):
     def get_video_details(self, url: str) -> dict:
         """Obtiene los detalles (título, duración) de un video de YouTube."""
         pass
+
+    @abstractmethod
+    def get_download_url(self, url: str) -> str | None:
+        """Obtiene la URL de descarga directa de un video de YouTube."""
+        pass

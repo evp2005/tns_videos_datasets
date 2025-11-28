@@ -19,7 +19,7 @@ yt-dlp
 moviepy
 openai-whisper
 extract-youtube
-
+pytube
 
 
 pydub

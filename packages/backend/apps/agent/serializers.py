@@ -13,7 +13,7 @@ class VideoSegmentationSerializer(serializers.Serializer):
     Serializer para la solicitud de segmentación de video.
     Valida la URL del video y una lista de segmentos.
     """
-    video_url = serializers.URLField()
+    url = serializers.URLField()
     video_title = serializers.CharField(max_length=255)
     segments = serializers.ListField(
         child=SegmentSerializer()

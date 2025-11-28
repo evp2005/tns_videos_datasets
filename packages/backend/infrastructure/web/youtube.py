@@ -4,6 +4,7 @@ from core.ports.youtube_service import YouTubeService
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import JSONFormatter, TextFormatter, WebVTTFormatter, SRTFormatter
 from utils.text_utils import flatten_text_yt
+from core.services import VideoProcessingError
 
 class YouTubeTranscriptService(YouTubeService):
     """Implementación del puerto YouTubeService."""
@@ -63,3 +64,39 @@ class YouTubeTranscriptService(YouTubeService):
         except Exception as e:
             print(f"YOUTUBE_SERVICE ERROR en get_video_details: {e}")
             raise
+
+    def get_download_url(self, url: str) -> str | None:
+        """
+        Obtiene la URL de descarga directa de un video de YouTube usando yt-dlp.
+        Esta es una solución mucho más robusta que pytube.
+        """
+        try:
+            print(f"YOUTUBE_SERVICE (yt-dlp): Obteniendo información para: {url}")
+            ydl_opts = {
+                'quiet': True,
+                'skip_download': True,
+                'force_generic_extractor': True
+            }
+            
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                
+                # Buscamos el mejor formato que sea un solo archivo MP4 con video y audio
+                best_format = None
+                for f in info.get('formats', []):
+                    # 'vcodec' y 'acodec' no son 'none' y la extensión es mp4
+                    if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('ext') == 'mp4':
+                        # Priorizamos resoluciones de 720p o la mejor disponible si no hay 720p
+                        if not best_format or (f.get('height', 0) > best_format.get('height', 0) and f.get('height', 0) <= 720):
+                            best_format = f
+                
+                if best_format:
+                    download_url = best_format.get('url')
+                    print(f"YOUTUBE_SERVICE (yt-dlp): Formato seleccionado con resolución {best_format.get('height')}p. URL encontrada.")
+                    return download_url
+                else:
+                    print("YOUTUBE_SERVICE ERROR: No se encontró un formato de video MP4 compatible con yt-dlp.")
+                    return None
+        except Exception as e:
+            print(f"YOUTUBE_SERVICE ERROR en get_download_url: {e}")
+            raise VideoProcessingError(f"yt-dlp falló con el error: {e}")

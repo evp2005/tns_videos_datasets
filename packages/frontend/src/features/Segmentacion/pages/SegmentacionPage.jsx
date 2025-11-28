@@ -11,7 +11,7 @@ function SegmentacionPage() {
   const { video, transcriptions } = location.state || {};
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [numeroSegmentos, setNumeroSegmentos] = useState("8");
+  const [numeroSegmentos, setNumeroSegmentos] = useState("20");
   const [segmentos, setSegmentos] = useState([]);
   const [segmentosMostrados, setSegmentosMostrados] = useState([]);
   // 🔥 1. AÑADIR ESTADOS DE CARGA Y ERROR
@@ -124,48 +124,76 @@ function SegmentacionPage() {
           end: s.fin,
         }));
 
+      // --- INICIO DE LA DEPURACIÓN ---
+      // 1. Imprime el objeto 'video' para ver qué propiedades tiene realmente.
+      console.log("DEBUG: Objeto 'video' recibido:", video);
+      // 2. Imprime el objeto 'transcriptions' para encontrar la URL.
+      console.log("DEBUG: Objeto 'transcriptions' recibido:", transcriptions);
+
+      // --- CORRECCIÓN ---
+      // La URL original del video está en el objeto 'transcriptions', pero
+      // probablemente con un nombre como 'video_url' o 'original_url'.
+      // Revisa la consola del navegador para ver el nombre correcto y ajústalo aquí.
+      // --- CORRECCIÓN FINAL ---
+      // La URL original está en el objeto 'video' con la propiedad 'url_video'.
+      const videoUrl = video.url_video;
+
       const payload = {
-        video_url: video.url_video,
-        video_title: video.title,
+        url: videoUrl, // <-- CORRECCIÓN: Usamos la URL que acabamos de definir.
+        video_title: video.title, // El backend espera 'video_title', no 'title'.
         segments: segmentosSeleccionados,
       };
 
-      // 🔥 4. REALIZAR LA PETICIÓN FETCH
-      const response = await fetch(
-        "http://127.0.0.1:8000/agent/segment-video",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      // --- FIN DE LA DEPURACIÓN ---
+      const API_BASE_URL =
+        import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+      const endpoint =
+        video.origin_video === "youtube"
+          ? `${API_BASE_URL}/agent/segment-video-youtube`
+          : `${API_BASE_URL}/agent/segment-video-escuelait`;
 
-      // 🔥 5. MANEJAR LA RESPUESTA
+      console.log(`Enviando petición a: ${endpoint}`);
+      console.log("DEBUG: Payload enviado:", JSON.stringify(payload, null, 2));
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
       if (!response.ok) {
-        // Si el servidor devuelve un error (4xx o 5xx)
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Ocurrió un error en el servidor."
-        );
+        // Intenta obtener el detalle del error del backend para un mejor diagnóstico.
+        let errorDetail = "Ocurrió un error en el servidor.";
+        try {
+          const errorData = await response.json();
+          // DRF a menudo devuelve errores en un objeto, ej: {"video_url": ["Este campo no puede ser nulo."]}
+          errorDetail = errorData.detail || JSON.stringify(errorData);
+        } catch (e) {
+          // Si la respuesta de error no es JSON, usa el texto de estado.
+          errorDetail = response.statusText;
+        }
+        throw new Error(errorDetail);
       }
 
-      // Si la respuesta es exitosa, será un archivo ZIP
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      // El nombre del archivo lo define el backend en 'Content-Disposition'
-      // pero podemos poner un fallback.
       a.download = `${video.title || "clips"}.zip`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError(err.message);
+      // Si es un error de red (como CORS), err.message será más descriptivo
+      console.error("Error al generar clips:", err);
+      setError(
+        err.message ||
+          "No se pudo conectar con el servidor. Revisa la consola para más detalles."
+      );
     } finally {
       setIsLoading(false);
     }
