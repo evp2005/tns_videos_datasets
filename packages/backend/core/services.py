@@ -3,22 +3,27 @@ from .ports.storage import AudioStorage
 from .ports.repositories import UserRepository, VideoRepository, TranscriptionRepository
 from .ports.content_fetcher import ContentFetcher
 from .ports.youtube_service import YouTubeService
-from typing import Optional
+from typing import Tuple, Dict, Any
+
+#from typing import Optional
 import os
 from .domain.models import User, Video, Transcription
-
+from faster_whisper import WhisperModel
 #NUEVAS LINEAS PARA DOBLAJE
-"""
+
 import uuid
 import tempfile
 import shutil
 from typing import Tuple, Dict, Any
 from pydub import AudioSegment
 
+
+
+
 from infrastructure.dubbing.audio.whisper_adapter import WhisperAudioAdapter
 from infrastructure.dubbing.translation.google_translate_adapter import GoogleTranslateAdapter
 from infrastructure.dubbing.tts.edge_tts_adapter import EdgeTTSAdapter
-"""
+
 
 
 
@@ -190,7 +195,7 @@ def get_escuelait_details(url: str, scraper: VideoScraper) -> dict:
 
 
 
-"""
+
 # DOBLAJE HFJKHSDJFHJKEHFHSEDHFS
 class DubbingService:
     def __init__(self):
@@ -217,12 +222,19 @@ class DubbingService:
     def process_dubbing(self, file_data: bytes, filename: str, source_lang: str, 
                        target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
         try:
+
+            print(f" DubbingService.process_dubbing iniciado")
+            print(f" Archivo: {filename} ({len(file_data)} bytes)")
+            print(f" Traducción: {source_lang} -> {target_lang}")
+
+
             # Guardar archivo temporalmente
             video_id = str(uuid.uuid4())
             file_extension = os.path.splitext(filename)[1] or ".mp4"
             unique_filename = f"{video_id}{file_extension}"
             file_path = os.path.join(self.upload_dir, unique_filename)
             
+            print(f" Guardando archivo temporal: {file_path}")
             with open(file_path, 'wb') as f:
                 f.write(file_data)
             
@@ -240,32 +252,35 @@ class DubbingService:
             return success, result_info
             
         except Exception as e:
+            print(f" ERROR en DubbingService.process_dubbing: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return False, {"error": str(e)}
     
     def _process_dubbing_precise(self, input_path: str, output_path: str, source_lang: str, 
                                target_lang: str, use_edge_tts: bool) -> Tuple[bool, Dict[str, Any]]:
         try:
-            print("🎯 Iniciando doblaje preciso...")
+            print(" Iniciando doblaje preciso...")
             temp_dir = tempfile.mkdtemp()
             
             try:
                 # 1. Extraer audio del video usando FFmpeg
-                print("🔊 Extrayendo audio...")
+                print(" Extrayendo audio...")
                 audio_path = os.path.join(temp_dir, "audio_original.wav")
                 if not self.audio_processor.extract_audio(input_path, audio_path):
                     return False, {"error": "Error extrayendo audio"}
                 
                 # 2. Transcripción precisa con Whisper (con timestamps)
-                print("📝 Transcribiendo con Whisper...")
+                print(" Transcribiendo con Whisper...")
                 segments = self.audio_processor.transcribe_audio(audio_path, source_lang)
                 
                 if not segments:
                     return False, {"error": "No se pudo transcribir el audio"}
                 
-                print(f"✅ Transcritos {len(segments)} segmentos")
+                print(f" Transcritos {len(segments)} segmentos")
                 
                 # 3. Procesar cada segmento con timing exacto
-                print("🔄 Procesando segmentos...")
+                print(" Procesando segmentos...")
                 segmentos_procesados = []
                 
                 for i, segment in enumerate(segments):
@@ -294,20 +309,20 @@ class DubbingService:
                                 'text_translated': texto_traducido
                             })
                 
-                print(f"🎙️  Procesados {len(segmentos_procesados)} segmentos para doblaje")
+                print(f"  Procesados {len(segmentos_procesados)} segmentos para doblaje")
                 
                 if not segmentos_procesados:
                     return False, {"error": "No se pudo procesar ningún segmento de audio"}
                 
                 # 4. Crear pista de audio doblada con timing exacto
-                print("🔊 Construyendo pista de audio doblada...")
+                print(" Construyendo pista de audio doblada...")
                 audio_doblado_path = os.path.join(temp_dir, "audio_doblado.wav")
                 if not self._construir_audio_doblado(segmentos_procesados, audio_doblado_path, 
                                                    self._obtener_duracion_audio(audio_path)):
                     return False, {"error": "Error construyendo audio doblado"}
                 
                 # 5. Reemplazar audio en video usando FFmpeg
-                print("🎬 Reemplazando audio en video...")
+                print(" Reemplazando audio en video...")
                 if self.audio_processor.mix_audio_tracks(input_path, audio_doblado_path, output_path):
                     return True, {
                         "transcribed_segments": len(segments),
@@ -322,7 +337,7 @@ class DubbingService:
                 shutil.rmtree(temp_dir, ignore_errors=True)
                         
         except Exception as e:
-            print(f"❌ Error en doblaje preciso: {e}")
+            print(f" Error en doblaje preciso: {e}")
             import traceback
             traceback.print_exc()
             return False, {"error": str(e)}
@@ -336,7 +351,7 @@ class DubbingService:
                 try:
                     # Verificar que el archivo de audio existe
                     if not os.path.exists(segmento['audio_path']):
-                        print(f"⚠️  Archivo de audio no encontrado: {segmento['audio_path']}")
+                        print(f"  Archivo de audio no encontrado: {segmento['audio_path']}")
                         continue
                     
                     # Cargar audio doblado
@@ -354,7 +369,7 @@ class DubbingService:
                     pista_final = pista_final.overlay(audio_doblado, position=start_ms)
                     
                 except Exception as e:
-                    print(f"⚠️  Error procesando segmento: {e}")
+                    print(f"  Error procesando segmento: {e}")
                     continue
             
             # Exportar audio final
@@ -362,7 +377,7 @@ class DubbingService:
             return os.path.exists(output_path)
             
         except Exception as e:
-            print(f"❌ Error construyendo audio doblado: {e}")
+            print(f" Error construyendo audio doblado: {e}")
             return False
     
     def _obtener_duracion_audio(self, audio_path):
@@ -370,6 +385,5 @@ class DubbingService:
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0  # Convertir a segundos
         except Exception as e:
-            print(f"⚠️  Error obteniendo duración: {e}")
+            print(f"  Error obteniendo duración: {e}")
             return 0
-"""

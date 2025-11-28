@@ -3,19 +3,22 @@ import json
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-"""
+
 from core.services import DubbingService
+print(" Vista dub_video cargada correctamente")
 @csrf_exempt
 @require_http_methods(["POST"])
 def dub_video(request):
+    print(" === DOBLAJE POST RECIBIDOsssssss ===")
     try:
-        print("🔍 DEBUG: Iniciando dub_video...")
-        print(f"📦 FILES recibidos: {list(request.FILES.keys())}")
-        print(f"📝 POST recibidos: {list(request.POST.keys())}")
+        print(" DEBUG: Iniciando DOBLAJE...")
+        print(f" DEBUG: Método: {request.method}")
+        print(f" FILES recibidos: {list(request.FILES.keys())}")
+        print(f" POST recibidos: {list(request.POST.keys())}")
         
         # Verificar que el archivo esté presente (usando request.FILES de Django)
         if 'file' not in request.FILES:
-            print("❌ DEBUG: No hay archivo en request.FILES")
+            print(" DEBUG: No hay archivo en request.FILES")
             return JsonResponse({
                 "success": False,
                 "message": "No se seleccionó archivo"
@@ -30,9 +33,9 @@ def dub_video(request):
         filename = file_obj.name
         file_data = file_obj.read()  # Leer los bytes del archivo
         
-        print(f"📹 Procesando: {filename} -> {target_lang}")
-        print(f"🔍 Idioma origen: {source_lang} | TTS: {'Edge' if use_edge_tts else 'gTTS'}")
-        print(f"📊 Tamaño del archivo: {len(file_data)} bytes")
+        print(f" Procesando: {filename} -> {target_lang}")
+        print(f" Idioma origen: {source_lang} | TTS: {'Edge' if use_edge_tts else 'gTTS'}")
+        print(f" Tamaño del archivo: {len(file_data)} bytes")
         
         # Validar que el archivo no esté vacío
         if not filename or len(file_data) == 0:
@@ -41,32 +44,38 @@ def dub_video(request):
                 "message": "Archivo vacío o inválido"
             }, status=400)
         
-        # Usar el servicio de la arquitectura hexagonal
+        print(" Iniciando DubbingService...")
         dubbing_service = DubbingService()
         
         # Procesar doblaje
+        print(" Llamando a process_dubbing...")
         success, result_info = dubbing_service.process_dubbing(
             file_data, filename, source_lang, target_lang, use_edge_tts
         )
+
+        print(f" Resultado del doblaje: {success}")
+        print(f" Info: {result_info}")
         
         if success:
             return JsonResponse({
                 "success": True,
-                "message": f"✅ Video doblado exitosamente!",
+                "message": f" Video doblado exitosamente!",
                 "download_url": f"/api/dubbing/download/{result_info['output_filename']}",
                 "dubbing_type": "preciso",
                 "transcribed_segments": result_info.get("transcribed_segments", 0),
                 "translated_segments": result_info.get("translated_segments", 0),
                 "total_duration": result_info.get("total_duration", 0)
             })
+        
+            
         else:
             return JsonResponse({
                 "success": False,
-                "message": f"❌ Error en doblaje: {result_info.get('error', 'Error desconocido')}"
+                "message": f" Error en doblaje: {result_info.get('error', 'Error desconocido')}"
             }, status=500)
             
     except Exception as e:
-        print(f"❌ Error en dub_video: {str(e)}")
+        print(f" Error en dub_video: {str(e)}")
         import traceback
         traceback.print_exc()
         return JsonResponse({
@@ -161,4 +170,3 @@ def _parse_part(part, data):
         name = content_disposition[name_start:name_end]
         data[name] = body.decode().strip()
 
-"""

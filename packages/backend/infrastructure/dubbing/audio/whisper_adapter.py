@@ -2,6 +2,7 @@ import os
 import subprocess
 from typing import List, Dict, Any
 
+
 class WhisperAudioAdapter:
     def __init__(self):
         self.whisper_model = None
@@ -11,14 +12,14 @@ class WhisperAudioAdapter:
         """Cargar modelo Whisper"""
         try:
             import whisper
-            print("🔄 Cargando modelo Whisper para transcripción precisa...")
+            print(" Cargando modelo Whisper para transcripción precisa...")
             self.whisper_model = whisper.load_model("base")
-            print("✅ Modelo Whisper cargado")
+            print(" Modelo Whisper cargado")
         except ImportError as e:
-            print(f"❌ Whisper no disponible: {e}")
+            print(f" Whisper no disponible: {e}")
             self.whisper_model = None
         except Exception as e:
-            print(f"❌ Error cargando Whisper: {e}")
+            print(f" Error cargando Whisper: {e}")
             self.whisper_model = None
     
     def is_available(self) -> bool:
@@ -38,7 +39,7 @@ class WhisperAudioAdapter:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return result.returncode == 0
         except Exception as e:
-            print(f"❌ Error extrayendo audio con FFmpeg: {e}")
+            print(f" Error extrayendo audio con FFmpeg: {e}")
             return False
     
     def transcribe_audio(self, audio_path: str, language: str = "auto") -> List[Dict[str, Any]]:
@@ -60,7 +61,7 @@ class WhisperAudioAdapter:
             return result.get('segments', [])
             
         except Exception as e:
-            print(f"❌ Error en transcripción Whisper: {e}")
+            print(f" Error en transcripción Whisper: {e}")
             return []
     
     def mix_audio_tracks(self, original_video_path: str, dubbed_audio_path: str, output_path: str) -> bool:
@@ -74,5 +75,5 @@ class WhisperAudioAdapter:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return result.returncode == 0
         except Exception as e:
-            print(f"❌ Error mezclando audio: {e}")
+            print(f" Error mezclando audio: {e}")
             return False
