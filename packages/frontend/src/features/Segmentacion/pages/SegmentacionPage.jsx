@@ -11,7 +11,7 @@ function SegmentacionPage() {
   const { video, transcriptions } = location.state || {};
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [numeroSegmentos, setNumeroSegmentos] = useState("20");
+  const [numeroSegmentos, setNumeroSegmentos] = useState(""); // Estado inicial vacío
   const [segmentos, setSegmentos] = useState([]);
   const [segmentosMostrados, setSegmentosMostrados] = useState([]);
   // 🔥 1. AÑADIR ESTADOS DE CARGA Y ERROR
@@ -37,6 +37,7 @@ function SegmentacionPage() {
         // Buscar inicio y fin en las siguientes líneas
         let inicio = "";
         let fin = "";
+        let importancia = "N/A"; // Valor por defecto
 
         for (let i = index + 1; i < Math.min(index + 5, lineas.length); i++) {
           const siguienteLinea = lineas[i].trim();
@@ -56,6 +57,15 @@ function SegmentacionPage() {
           if (finMatch) {
             fin = finMatch[1]; // Guardamos el tiempo completo con milisegundos
           }
+
+          // --- CORRECCIÓN: Añadir lógica para extraer la importancia ---
+          // Busca "Importancia" (insensible a mayúsculas) y permite espacios flexibles.
+          const importanciaMatch = siguienteLinea.match(
+            /\*\*Importancia\s*:\*\*\s*(.+)/i
+          );
+          if (importanciaMatch) {
+            importancia = importanciaMatch[1].trim();
+          }
         }
 
         capitulos.push({
@@ -64,6 +74,7 @@ function SegmentacionPage() {
           tema: titulo,
           inicio: inicio || "00:00:00.000",
           fin: fin || "00:00:00.000",
+          importancia: importancia, // Añadimos la importancia al objeto del capítulo
         });
       }
     });
@@ -79,13 +90,11 @@ function SegmentacionPage() {
       );
       setSegmentos(capitulosExtraidos);
 
-      // Mostrar según el número seleccionado
-      const cantidad = parseInt(numeroSegmentos);
-      const mostrar = capitulosExtraidos.slice(0, cantidad);
-      setSegmentosMostrados(mostrar);
+      // --- CORRECCIÓN: Establecer "Todos" como valor por defecto ---
+      setNumeroSegmentos(String(capitulosExtraidos.length));
 
       // Seleccionar todos por defecto
-      setSelectedRowKeys(mostrar.map((s) => s.key));
+      setSelectedRowKeys(capitulosExtraidos.map((s) => s.key));
     }
   }, [transcriptions?.markdown]);
 
@@ -243,6 +252,38 @@ function SegmentacionPage() {
         </span>
       ),
     },
+    {
+      title: "Importancia",
+      dataIndex: "importancia",
+      key: "importancia",
+      width: "15%",
+      align: "center",
+      render: (importancia) => {
+        // --- CORRECCIÓN: Añadir comprobación de seguridad ---
+        if (!importancia || typeof importancia !== "string") {
+          importancia = "N/A"; // Asignar valor por defecto si no es un string válido
+        }
+
+        let color = "gray";
+        const importanciaLower = importancia.toLowerCase();
+
+        if (importanciaLower === "alta") {
+          color = "green";
+        } else if (importanciaLower === "media") {
+          color = "orange";
+        } else if (importanciaLower === "baja") {
+          color = "red";
+        }
+
+        return (
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded-full bg-${color}-100 text-${color}-800 border border-${color}-200`}
+          >
+            {importancia}
+          </span>
+        );
+      },
+    },
   ];
 
   const rowSelection = {
@@ -255,10 +296,41 @@ function SegmentacionPage() {
     }),
   };
 
+  // --- INICIO DE LA MEJORA ---
+  // Función para generar opciones dinámicas para el selector
+  const generarOpcionesDeSegmentos = (totalSegmentos) => {
+    if (totalSegmentos <= 5) {
+      // Si hay muy pocos, solo mostrar la opción de "Todos"
+      return [
+        { value: String(totalSegmentos), label: `Todos (${totalSegmentos})` },
+      ];
+    }
+
+    const opciones = [];
+    const escalones = [4, 8, 12, 20]; // Escalones predefinidos
+
+    // Añadir escalones que sean menores que el total
+    for (const escalon of escalones) {
+      if (escalon < totalSegmentos) {
+        opciones.push({
+          value: String(escalon),
+          label: `${escalon} Capítulos`,
+        });
+      }
+    }
+
+    // Añadir siempre la opción de "Todos"
+    opciones.push({
+      value: String(totalSegmentos),
+      label: `Todos (${totalSegmentos})`,
+    });
+
+    return opciones;
+  };
+  // --- FIN DE LA MEJORA ---
+
   const estadisticas = {
-    segmentosTotales: segmentosMostrados.length,
     seleccionados: selectedRowKeys.length,
-    duracionEstimada: "~" + segmentosMostrados.length * 5 + " min",
   };
 
   return (
@@ -431,15 +503,9 @@ function SegmentacionPage() {
                             value={numeroSegmentos}
                             onChange={handleNumeroSegmentosChange}
                             style={{ width: 140 }}
-                            options={[
-                              { value: "4", label: "4 Capítulos" },
-                              { value: "6", label: "6 Capítulos" },
-                              { value: "8", label: "8 Capítulos" },
-                              {
-                                value: String(segmentos.length),
-                                label: `Todos (${segmentos.length})`,
-                              },
-                            ]}
+                            options={generarOpcionesDeSegmentos(
+                              segmentos.length
+                            )}
                           />
                           <span className="text-sm text-gray-500">
                             ({selectedRowKeys.length} Seleccionados)
@@ -451,6 +517,7 @@ function SegmentacionPage() {
                           rowSelection={{
                             type: "checkbox",
                             ...rowSelection,
+                            hideSelectAll: true,
                           }}
                           columns={columns}
                           dataSource={segmentosMostrados}
@@ -463,8 +530,7 @@ function SegmentacionPage() {
                         {/* Sugerencia */}
                         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                           <p className="text-sm text-blue-800">
-                            <span className="font-semibold">📌 Info:</span> Los
-                            capítulos se extrajeron automáticamente del
+                            Los capítulos se extrajeron automáticamente del
                             Markdown. Puedes seleccionar los que desees para
                             generar clips individuales.
                           </p>
@@ -487,7 +553,6 @@ function SegmentacionPage() {
 
                     <div className="space-y-3">
                       <button
-                        // 🔥 6. ACTUALIZAR LA INTERFAZ
                         className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={handleGenerarClips}
                         disabled={selectedRowKeys.length === 0 || isLoading}
@@ -496,7 +561,6 @@ function SegmentacionPage() {
                           ? "Generando..."
                           : `Generar ${selectedRowKeys.length} Clips`}
                       </button>
-                      {/* Mensaje de error */}
                       {error && (
                         <div className="mt-2 p-3 bg-red-100 border border-red-300 rounded-lg text-center">
                           <p className="text-sm text-red-700">
@@ -537,23 +601,15 @@ function SegmentacionPage() {
                         <span className="font-medium">{segmentos.length}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Mostrados:</span>
-                        <span className="font-medium">
-                          {estadisticas.segmentosTotales}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
                         <span className="text-gray-600">Seleccionados:</span>
                         <span className="font-medium text-blue-600">
                           {estadisticas.seleccionados}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">
-                          Duración estimada:
-                        </span>
+                        <span className="text-gray-600">Duración total:</span>
                         <span className="font-medium">
-                          {estadisticas.duracionEstimada}
+                          {video?.duration || "00:00"}
                         </span>
                       </div>
                     </div>
