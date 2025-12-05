@@ -1,17 +1,22 @@
 import os
 import json
+import tempfile
+import subprocess
+import shutil
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from core.services import DubbingService, VideoProcessingError
+from infrastructure.scraping.selenium_video_scraper import SeleniumVideoScraper
+from infrastructure.web.youtube import YouTubeTranscriptService
 
-from core.services import DubbingService
-print(" Vista dub_video cargada correctamente")
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def dub_video(request):
-    print(" === DOBLAJE POST RECIBIDOsssssss ===")
+    print(" === DOBLAJE POST RECIBIDO ===")
     try:
-        print(" DEBUG: Iniciando DOBLAJE...")
+        print("🔍 DEBUG: Iniciando DOBLAJE...")
         print(f" DEBUG: Método: {request.method}")
         print(f" FILES recibidos: {list(request.FILES.keys())}")
         print(f" POST recibidos: {list(request.POST.keys())}")
@@ -59,15 +64,13 @@ def dub_video(request):
         if success:
             return JsonResponse({
                 "success": True,
-                "message": f" Video doblado exitosamente!",
+                "message": "🎉 Video doblado exitosamente!",
                 "download_url": f"/api/dubbing/download/{result_info['output_filename']}",
                 "dubbing_type": "preciso",
                 "transcribed_segments": result_info.get("transcribed_segments", 0),
                 "translated_segments": result_info.get("translated_segments", 0),
                 "total_duration": result_info.get("total_duration", 0)
             })
-        
-            
         else:
             return JsonResponse({
                 "success": False,
@@ -84,6 +87,176 @@ def dub_video(request):
         }, status=500)
 
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def dub_video_from_url(request):
+    """
+    Endpoint para doblar un video desde una URL (YouTube o EscuelaIT).
+    Descarga el video, lo procesa y devuelve el resultado doblado.
+    """
+    
+    scraper = None
+    temp_dir = tempfile.mkdtemp()
+    
+    try:
+        # Parsear el body JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({
+                "success": False,
+                "message": "Cuerpo de la petición inválido (JSON mal formado)"
+            }, status=400)
+        
+        # Validar campos requeridos
+        video_url = data.get('url')
+        target_lang = data.get('target_lang', 'es')
+        origin_video = data.get('origin_video', 'youtube')
+        video_title = data.get('video_title', 'video')
+        source_lang = data.get('source_lang', 'auto')
+        use_edge_tts = data.get('use_edge_tts', False)
+        
+        if not video_url:
+            return JsonResponse({
+                "success": False,
+                "message": "Se requiere la URL del video"
+            }, status=400)
+        
+        print(f" URL recibida: {video_url}")
+        print(f" Origen: {origin_video} | Idioma destino: {target_lang}")
+        print(f" Título: {video_title}")
+        
+        # --- PASO 1: Descargar el video según su origen ---
+        temp_video_path = os.path.join(temp_dir, 'input_video.mp4')
+        
+        if origin_video == 'youtube':
+            print(" Descargando video de YouTube...")
+            youtube_service = YouTubeTranscriptService()
+            download_url = youtube_service.get_download_url(video_url)
+            
+            if not download_url:
+                raise VideoProcessingError("No se pudo obtener una URL de descarga para el video de YouTube.")
+
+            subprocess.run(
+                ['ffmpeg',
+                 '-user_agent', "Mozilla/5.0",
+                 '-i', download_url,
+                 '-c', 'copy', temp_video_path],
+                check=True, capture_output=True, text=True
+            )
+            print(f" Video de YouTube descargado: {temp_video_path}")
+        
+        elif origin_video == 'escuelait':
+            print(" Descargando video de EscuelaIT...")
+            scraper = SeleniumVideoScraper()
+            
+            video_info = scraper.get_m3u8_url(video_url)
+            
+            if not video_info or not video_info.get('url'):
+                raise VideoProcessingError("No se pudo obtener la URL M3U8 del video.")
+
+            m3u8_url = video_info['url']
+            real_user_agent = video_info.get('user_agent', 'Mozilla/5.0')
+            
+            headers = (
+                f"Referer: {video_url}\r\n"
+                f"User-Agent: {real_user_agent}\r\n"
+            )
+
+            subprocess.run(
+                ['ffmpeg', '-protocol_whitelist', 'file,http,https,tcp,tls,crypto',
+                 '-user_agent', real_user_agent,
+                 '-headers', headers,
+                 '-i', m3u8_url,
+                 '-c', 'copy', temp_video_path],
+                check=True, capture_output=True, text=True
+            )
+            print(f" Video de EscuelaIT descargado: {temp_video_path}")
+        
+        else:
+            raise VideoProcessingError(f"Origen de video no soportado: {origin_video}")
+
+        # --- PASO 2: Leer el video descargado como bytes ---
+        with open(temp_video_path, 'rb') as f:
+            file_data = f.read()
+        
+        filename = f"{video_title}.mp4"
+        
+        print(f" Video descargado: {len(file_data)} bytes")
+        
+        # --- PASO 3: Procesar el doblaje usando DubbingService ---
+        print(" Iniciando DubbingService...")
+        dubbing_service = DubbingService()
+        
+        print(" Llamando a process_dubbing...")
+        success, result_info = dubbing_service.process_dubbing(
+            file_data, filename, source_lang, target_lang, use_edge_tts
+        )
+
+        print(f" Resultado del doblaje: {success}")
+        print(f" Info: {result_info}")
+        
+        if success:
+            # --- PASO 4: Devolver el archivo doblado ---
+            output_filename = result_info['output_filename']
+            output_path = dubbing_service.get_output_path(output_filename)
+            
+            if os.path.exists(output_path):
+                with open(output_path, 'rb') as f:
+                    from django.http import HttpResponse
+                    response = HttpResponse(f.read(), content_type='video/mp4')
+                    safe_title = "".join([c for c in video_title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+                    response['Content-Disposition'] = f'attachment; filename="{safe_title}_doblado_{target_lang}.mp4"'
+                    
+                    print(f" Enviando video doblado: {safe_title}_doblado_{target_lang}.mp4")
+                    return response
+            else:
+                raise VideoProcessingError("No se pudo encontrar el video doblado generado.")
+        else:
+            return JsonResponse({
+                "success": False,
+                "message": f" Error en doblaje: {result_info.get('error', 'Error desconocido')}"
+            }, status=500)
+    
+    except subprocess.CalledProcessError as e:
+        error_message = f"Error durante el procesamiento con FFmpeg: {e.stderr}"
+        print(f" {error_message}")
+        return JsonResponse({
+            "success": False,
+            "message": error_message
+        }, status=500)
+    
+    except VideoProcessingError as e:
+        print(f" VideoProcessingError: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": str(e)
+        }, status=500)
+    
+    except Exception as e:
+        print(f" Error en dub_video_from_url: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            "success": False,
+            "message": f"Error interno: {str(e)}"
+        }, status=500)
+    
+    finally:
+        # Limpiar recursos
+        if scraper and hasattr(scraper, 'driver') and scraper.driver:
+            try:
+                scraper.driver.quit()
+                print(" Selenium driver cerrado")
+            except:
+                pass
+        
+        if os.path.exists(temp_dir):
+            try:
+                shutil.rmtree(temp_dir)
+                print(f" Directorio temporal limpiado: {temp_dir}")
+            except:
+                pass
 
 
 @csrf_exempt
@@ -96,6 +269,7 @@ def health_check(request):
         "dubbing_precise": dubbing_service.is_dubbing_available(),
         "whisper_loaded": dubbing_service.is_whisper_loaded()
     })
+
 
 @csrf_exempt
 def download_file(request, filename):
@@ -114,12 +288,14 @@ def download_file(request, filename):
             "message": "Archivo no encontrado"
         }, status=404)
 
+
 # Funciones auxiliares para parsear multipart (de tu código original)
 def _get_boundary(content_type):
     for part in content_type.split(';'):
         if 'boundary=' in part:
             return part.split('=')[1].strip()
     return None
+
 
 def _parse_multipart_form_data(body, boundary):
     data = {}
@@ -132,6 +308,7 @@ def _parse_multipart_form_data(body, boundary):
             _parse_part(part, data)
             
     return data
+
 
 def _parse_part(part, data):
     headers_end = part.find(b'\r\n\r\n')
@@ -169,4 +346,3 @@ def _parse_part(part, data):
         name_end = content_disposition.find('"', name_start)
         name = content_disposition[name_start:name_end]
         data[name] = body.decode().strip()
-

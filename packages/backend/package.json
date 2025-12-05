@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "python manage.py runserver"
+    "dev": "py manage.py runserver"
   },
   "keywords": [],
   "author": "",

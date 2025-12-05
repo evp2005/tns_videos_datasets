@@ -163,9 +163,15 @@ const AgregadosIngresadosTable = ({ videos = [], newlyAddedId }) => {
                                                 <>
                                                     <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
                                                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                                                        <button onClick={() => handleOptionClick(video.id, 'segmentacion')} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3">Segmentación</button>
+
                                                         <Link to="/transcripcion" state={{ video }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3">Transcripción</Link>
-                                                        <button onClick={() => handleOptionClick(video.id, 'doblaje')} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3">Doblaje</button>
+                                                        <Link
+                                                            to="/doblaje"
+                                                            state={{ video }}
+                                                            className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                                                        >
+                                                            Doblaje
+                                                        </Link>
                                                     </div>
                                                 </>
                                             )}

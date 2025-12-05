@@ -512,7 +512,9 @@ function TranscripcionPage() {
                         Enviar material a otros módulos
                       </span>
 
-                      <Link to="/doblaje" className="flex flex-col gap-3 px-5">
+                      <Link to="/doblaje"
+                        state={prepareDataForSegmentation()}
+                        className="flex flex-col gap-3 px-5">
                         <button className="bg-[#224DB3] text-white flex justify-center items-center rounded-md h-8 text-sm py-1">
                           Enviar a traducción
                         </button>
@@ -526,8 +528,7 @@ function TranscripcionPage() {
                     <div className="flex flex-col gap-3 px-5 mb-5">
                       <Link
                         to="/segmentacion"
-                        state={prepareDataForSegmentation()}
-                      >
+                        state={prepareDataForSegmentation()}>
                         <button className="border-[#EEEFEF] border-2 rounded-lg flex justify-center items-center h-8 text-sm font-semibold py-1 w-full">
                           Enviar a segmentación
                         </button>

@@ -17,4 +17,6 @@ urlpatterns = [
     path('health/', views.health_check, name='dubbing_health'),
     path('download/<str:filename>/', views.download_file, name='download_dubbed'),
     path('debug-test/', debug_test, name='debug_test'),
+path('dub-from-url/', views.dub_video_from_url, name='dub_video_from_url'),
+
 ]
